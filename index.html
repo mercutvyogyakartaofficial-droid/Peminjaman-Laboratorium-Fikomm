@@ -1,0 +1,2014 @@
+<!DOCTYPE html>
+<html lang="id" class="light">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sistem Peminjaman Laboratorium Fikomm</title>
+    <!-- Favicon Logo Fikomm UMBY (Google Drive Link: 1Mw6VO6mLpKZazBygIdziq10mgIKbxH7j) -->
+    <link rel="icon" type="image/png" href="https://drive.google.com/thumbnail?id=1Mw6VO6mLpKZazBygIdziq10mgIKbxH7j&sz=w256">
+    <link rel="shortcut icon" type="image/png" href="https://drive.google.com/uc?export=view&id=1Mw6VO6mLpKZazBygIdziq10mgIKbxH7j">
+    <link rel="apple-touch-icon" href="https://drive.google.com/thumbnail?id=1Mw6VO6mLpKZazBygIdziq10mgIKbxH7j&sz=w256">
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script>
+        tailwind.config = { darkMode: 'class' }
+    </script>
+    <!-- Font Awesome -->
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <!-- Google Fonts -->
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700&display=swap');
+        body { font-family: 'Poppins', sans-serif; }
+        .line-clamp-2 { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; }
+        .wix-shadow { box-shadow: 0 8px 30px rgba(0,0,0,0.04); }
+        .hover-zoom img { transition: transform 0.4s ease; }
+        .hover-zoom:hover img { transform: scale(1.05); }
+        /* Scrollbar styling */
+        ::-webkit-scrollbar { width: 6px; height: 6px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 3px; }
+        .dark ::-webkit-scrollbar-thumb { background: #475569; }
+        /* Pastikan tombol keranjang mengambang selalu menempel di kanan bawah saat di-scroll di HP portrait maupun landscape */
+        #floatingCartBtn {
+            position: fixed !important;
+            right: 1rem !important;
+            bottom: calc(1.25rem + env(safe-area-inset-bottom, 0px)) !important;
+            z-index: 48 !important;
+        }
+    </style>
+</head>
+<body class="flex min-h-screen md:h-[100dvh] overflow-x-hidden md:overflow-hidden bg-slate-50 dark:bg-slate-900 text-slate-800 dark:text-slate-200 transition-colors duration-200">
+
+    <!-- MOBILE SIDEBAR BACKDROP -->
+    <div id="mobileSidebarBackdrop" onclick="closeMobileSidebar()" class="fixed inset-0 bg-black/50 backdrop-blur-xs z-40 hidden md:hidden transition-opacity"></div>
+
+    <!-- SIDEBAR -->
+    <aside id="mainSidebar" class="fixed md:static inset-y-0 left-0 z-50 w-64 bg-white dark:bg-slate-800 border-r border-gray-200 dark:border-slate-700 flex flex-col h-full overflow-y-auto -translate-x-full md:translate-x-0 shrink-0 transition-transform duration-300 ease-in-out shadow-2xl md:shadow-none">
+        <!-- Logo & Theme Toggle -->
+        <div class="p-5 flex justify-between items-center border-b border-gray-100 dark:border-slate-700">
+            <div class="flex items-center gap-3">
+                <img src="https://drive.google.com/thumbnail?id=1Mw6VO6mLpKZazBygIdziq10mgIKbxH7j&sz=w800" alt="Logo Fikomm" class="w-10 h-10 rounded-full object-cover bg-white dark:bg-slate-800 p-0.5 border border-gray-200 dark:border-slate-600">
+                <h1 class="text-xl font-bold text-blue-700 dark:text-blue-400 leading-tight">Lab<br>Fikomm</h1>
+            </div>
+            <div class="flex items-center gap-1">
+                <button onclick="toggleTheme()" class="text-gray-400 hover:text-yellow-500 dark:hover:text-yellow-300 transition-colors p-2" title="Ubah Tema">
+                    <i class="fas fa-moon dark:hidden"></i>
+                    <i class="fas fa-sun hidden dark:block"></i>
+                </button>
+                <button onclick="closeMobileSidebar()" class="md:hidden text-gray-400 hover:text-red-500 transition-colors p-2" title="Tutup Menu">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+        </div>
+
+        <!-- Menu Navigation -->
+        <nav class="flex-1 px-4 py-6 space-y-6">
+            <!-- Menu Utama -->
+            <div>
+                <p class="px-4 text-[10px] font-bold text-gray-400 dark:text-gray-500 mb-2 uppercase tracking-wider">Katalog Layanan</p>
+                <a href="#" onclick="switchMenu('semua')" id="menu-semua" class="menu-item flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg text-blue-700 bg-blue-50 dark:bg-blue-900/30 dark:text-blue-400 transition-colors">
+                    <i class="fas fa-th-large w-5 text-center"></i> Semua Katalog
+                </a>
+                <a href="#" onclick="switchMenu('alat')" id="menu-alat" class="menu-item flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-700/50 transition-colors mt-1">
+                    <i class="fas fa-video w-5 text-center"></i> Peminjaman Alat
+                </a>
+                <a href="#" onclick="switchMenu('ruangan')" id="menu-ruangan" class="menu-item flex items-center gap-3 px-4 py-2.5 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-700/50 transition-colors mt-1">
+                    <i class="fas fa-door-open w-5 text-center"></i> Peminjaman Ruangan
+                </a>
+                <a href="#" onclick="openCartModal()" id="menu-keranjang" class="menu-item flex items-center justify-between px-4 py-2.5 text-sm font-medium rounded-lg text-gray-600 hover:bg-gray-50 dark:text-gray-300 dark:hover:bg-slate-700/50 transition-colors mt-1">
+                    <span class="flex items-center gap-3"><i class="fas fa-clipboard-list w-5 text-center"></i> Keranjang Peminjaman</span>
+                    <span id="sidebarCartBadge" class="hidden bg-red-500 text-white text-[10px] font-bold w-5 h-5 rounded-full items-center justify-center shadow">0</span>
+                </a>
+            </div>
+
+            <!-- Ringkasan Info (Stats) -->
+            <div class="px-4">
+                <div class="bg-blue-50 dark:bg-slate-700/50 rounded-xl p-4 border border-blue-100 dark:border-slate-600">
+                    <h3 class="text-xs font-bold text-blue-800 dark:text-blue-300 mb-3 uppercase tracking-wider">Info Inventaris</h3>
+                    <div class="space-y-3">
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">Total Macam Alat</span>
+                            <span class="text-sm font-bold text-gray-900 dark:text-white" id="stat-total-macam">0</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-xs text-gray-600 dark:text-gray-300">Total Unit Stok</span>
+                            <span class="text-sm font-bold text-green-600 dark:text-green-400" id="stat-total-unit">0</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Menu Petugas -->
+            <div id="petugasMenuContainer" class="hidden">
+                <p class="px-4 text-[10px] font-bold text-red-400 mb-2 uppercase tracking-wider">Manajemen Admin</p>
+                <a href="#" onclick="openPetugasPanel()" class="flex items-center gap-3 px-4 py-2.5 text-sm font-medium text-gray-600 hover:text-red-600 hover:bg-red-50 dark:text-gray-300 dark:hover:bg-slate-700/50 dark:hover:text-red-400 rounded-lg transition-colors">
+                    <i class="fas fa-shield-alt w-5 text-center"></i> Panel Petugas
+                </a>
+            </div>
+        </nav>
+
+        <div class="p-4 border-t border-gray-100 dark:border-slate-700">
+            <button onclick="openLoginModal()" id="btn-login-petugas" class="w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 hover:bg-gray-200 dark:text-gray-300 dark:bg-slate-700 dark:hover:bg-slate-600 rounded-lg transition-colors">
+                <i class="fas fa-sign-in-alt"></i> Login Petugas
+            </button>
+            <button onclick="logoutPetugas()" id="btn-logout-petugas" class="hidden w-full flex items-center justify-center gap-2 px-4 py-2.5 text-sm font-medium text-red-600 bg-red-50 hover:bg-red-100 dark:bg-red-900/20 dark:hover:bg-red-900/40 rounded-lg transition-colors">
+                <i class="fas fa-sign-out-alt"></i> Keluar
+            </button>
+        </div>
+    </aside>
+
+    <!-- MAIN CONTENT -->
+    <main class="flex-1 flex flex-col min-h-screen md:h-full md:overflow-hidden relative w-full">
+        
+        <!-- Navbar Atas -->
+        <header class="sticky top-0 z-30 bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 h-16 flex items-center justify-between px-6 shrink-0 transition-colors duration-200">
+            <div class="flex items-center gap-4">
+                <button onclick="toggleMobileSidebar()" class="md:hidden text-gray-500 dark:text-gray-400 hover:text-blue-600 dark:hover:text-blue-400 p-1 -ml-1 rounded-lg focus:outline-none transition-colors" aria-label="Buka Navigasi">
+                    <i class="fas fa-bars text-xl"></i>
+                </button>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-white" id="mainTitle">Katalog Inventaris</h2>
+            </div>
+            
+            <div class="flex items-center gap-4">
+                <div class="hidden sm:flex items-center text-xs font-semibold text-gray-500 dark:text-gray-400 mr-2" id="syncStatus">
+                    <i class="fas fa-cloud-check text-green-500 mr-1"></i> Data Tersinkronisasi
+                </div>
+                
+                <!-- Tombol Keranjang (Ganti icon jadi papan notes) -->
+                <button onclick="openCartModal()" class="relative p-2 text-gray-600 dark:text-gray-300 hover:text-blue-600 dark:hover:text-blue-400 transition-colors" title="Keranjang Peminjaman">
+                    <i class="fas fa-clipboard-list text-xl"></i>
+                    <span id="cartBadge" class="absolute top-0 right-0 bg-red-500 text-white text-[10px] font-bold w-4 h-4 rounded-full flex items-center justify-center -mt-1 -mr-1 shadow">0</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Area Konten (Scrollable) -->
+        <div id="mainScrollContainer" class="flex-1 md:overflow-y-auto p-4 md:p-8 bg-slate-50 dark:bg-slate-900 transition-colors duration-200 relative">
+            
+            <!-- Pencarian & Filter -->
+            <div class="flex flex-col md:flex-row gap-4 mb-8">
+                <div class="relative flex-1">
+                    <input type="text" id="searchInput" placeholder="Cari nama, ID, atau kategori..." 
+                        class="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-sm rounded-xl pl-12 pr-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white transition-all shadow-sm">
+                    <i class="fas fa-search absolute left-5 top-4 text-gray-400"></i>
+                </div>
+                <div class="w-full md:w-48 shrink-0">
+                    <select id="categoryFilter" class="w-full bg-white dark:bg-slate-800 border border-gray-300 dark:border-slate-600 text-sm rounded-xl px-4 py-3 focus:outline-none focus:ring-2 focus:ring-blue-500 dark:text-white shadow-sm cursor-pointer">
+                        <option value="Semua">Semua Kategori</option>
+                        <option value="Broadcasting">Broadcasting</option>
+                        <option value="Fasilitas Ruangan">Fasilitas Ruangan</option>
+                        <option value="Optik">Optik</option>
+                        <option value="Elektronik">Elektronik</option>
+                        <option value="Audio">Audio</option>
+                        <option value="Lighting">Lighting</option>
+                        <option value="Aksesoris">Aksesoris</option>
+                        <option value="Gelas">Gelas</option>
+                        <option value="Mesin">Mesin Lab</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Grid Katalog -->
+            <div id="katalog-container" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 pb-32">
+                <!-- Data akan dimuat melalui JavaScript -->
+                <div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-400">
+                    <i class="fas fa-spinner fa-spin text-4xl mb-4 text-blue-500"></i>
+                    <p>Memuat dan Sinkronisasi Data...</p>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- FLOATING KERANJANG BUTTON (SELALU IKUT POSISI SCROLL DI KANAN BAWAH PORTRAIT & LANDSCAPE) -->
+    <button id="floatingCartBtn" onclick="openCartModal()" class="flex items-center gap-3 bg-blue-600 hover:bg-blue-700 active:scale-95 text-white px-4 py-3 rounded-full shadow-2xl border-2 border-white dark:border-slate-700 transition-transform duration-200">
+        <div class="relative flex items-center justify-center">
+            <i class="fas fa-clipboard-list text-lg sm:text-xl"></i>
+            <span id="floatingCartBadge" class="hidden -top-2 -right-2.5 absolute bg-red-500 text-white text-[10px] font-extrabold w-5 h-5 rounded-full items-center justify-center shadow border border-white">0</span>
+        </div>
+        <div class="text-left pr-1">
+            <span class="block text-[9px] uppercase tracking-wider text-blue-100 leading-none">Keranjang</span>
+            <span class="text-xs font-bold leading-tight whitespace-nowrap" id="floatingCartText">0 Unit Dipilih</span>
+        </div>
+    </button>
+
+    <!-- MODAL KERANJANG & FORM PINJAM -->
+    <div id="cartModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-4xl max-h-[90vh] overflow-hidden flex flex-col shadow-2xl">
+            <!-- Header Modal -->
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-700/50">
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-clipboard-list text-blue-600 dark:text-blue-400"></i> Form Pengajuan Peminjaman
+                </h3>
+                <button onclick="closeCartModal()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            
+            <div class="flex-1 overflow-y-auto p-6 flex flex-col md:flex-row gap-8">
+                <!-- Bagian Kiri: List Barang (Keranjang) -->
+                <div class="flex-1 flex flex-col">
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-4 border-b border-gray-100 dark:border-slate-700 pb-2">
+                        Daftar Pilihan (<span id="formCartCount">0</span> Item)
+                    </h4>
+                    <div id="cartItemsContainer" class="flex-1 overflow-y-auto space-y-3 pr-2 min-h-[200px]">
+                        <!-- Item keranjang dirender di sini -->
+                    </div>
+                </div>
+
+                <!-- Bagian Kanan: Form Identitas -->
+                <div class="w-full md:w-[350px] bg-gray-50 dark:bg-slate-700/30 p-5 rounded-xl border border-gray-100 dark:border-slate-700 shrink-0 h-fit space-y-4">
+                    <h4 class="text-sm font-bold text-gray-700 dark:text-gray-300 mb-2">Identitas & Waktu</h4>
+                    
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">Nomor Peminjam *</label>
+                        <input type="text" id="inputNomorPeminjam" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 bg-gray-100 font-mono" readonly>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">Nama Lengkap *</label>
+                        <input type="text" id="inputNama" required placeholder="Contoh: Budi Santoso" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="col-span-1">
+                            <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">NIM *</label>
+                            <input type="text" id="inputNim" required placeholder="1234567" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">No WhatsApp *</label>
+                            <input type="text" id="inputWa" required placeholder="0812..." class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">Konsentrasi *</label>
+                        <select id="inputProdi" required class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                            <option value="">Pilih Konsentrasi...</option>
+                            <option value="Broadcasting">Broadcasting</option>
+                            <option value="Public Relation">Public Relation</option>
+                            <option value="Marketing Communication">Marketing Communication</option>
+                            <option value="Lainnya">Lainnya / Umum</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">Dosen Pengampu *</label>
+                        <input type="text" id="inputDosen" required placeholder="Nama Dosen (Jika untuk tugas)" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                    </div>
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="col-span-1">
+                            <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">Tgl & Jam Pinjam *</label>
+                            <div class="flex gap-1">
+                                <input type="date" id="inputTanggal" required class="w-1/2 px-2 py-2 text-xs border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                                <input type="time" id="inputJamPinjam" required class="w-1/2 px-2 py-2 text-xs border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                        <div class="col-span-1">
+                            <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">Rencana Kembali *</label>
+                            <div class="flex gap-1">
+                                <input type="date" id="inputTanggalKembali" required class="w-1/2 px-2 py-2 text-xs border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                                <input type="time" id="inputJamKembali" required class="w-1/2 px-2 py-2 text-xs border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <label class="block text-xs font-semibold uppercase text-gray-500 dark:text-gray-400 mb-1">Keperluan Peminjaman *</label>
+                        <textarea id="inputKeperluan" required rows="2" placeholder="Sebutkan mata kuliah / acara / keperluan" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 resize-none"></textarea>
+                    </div>
+
+                    <!-- Checklist Syarat Peminjaman di Kolom Checkout -->
+                    <div class="pt-2 border-t border-gray-200 dark:border-slate-600 space-y-2.5">
+                        <p class="text-[11px] font-bold uppercase text-gray-500 dark:text-gray-400">Ketentuan Checkout *</p>
+                        <label class="flex items-start gap-2.5 cursor-pointer bg-blue-50/60 dark:bg-slate-800/60 p-2.5 rounded-lg border border-blue-100 dark:border-slate-600 hover:border-blue-300 transition-colors">
+                            <input type="checkbox" id="checkH3" class="mt-0.5 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer shrink-0">
+                            <span class="text-xs text-gray-700 dark:text-gray-300 leading-snug">Pengajuan peminjaman dilakukan minimal <strong>H-3 hari</strong> sebelum waktu penggunaan.</span>
+                        </label>
+                        <label class="flex items-start gap-2.5 cursor-pointer bg-blue-50/60 dark:bg-slate-800/60 p-2.5 rounded-lg border border-blue-100 dark:border-slate-600 hover:border-blue-300 transition-colors">
+                            <input type="checkbox" id="checkSyarat" class="mt-0.5 w-4 h-4 text-blue-600 rounded border-gray-300 focus:ring-blue-500 cursor-pointer shrink-0">
+                            <span class="text-xs text-gray-700 dark:text-gray-300 leading-snug">Saya telah membaca dan <strong>menyetujui syarat & ketentuan peminjaman</strong> Laboratorium Fikomm.</span>
+                        </label>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Footer Modal -->
+            <div class="p-5 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-3 bg-gray-50 dark:bg-slate-800">
+                <button onclick="closeCartModal()" class="px-5 py-2.5 text-sm font-medium text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 dark:bg-slate-700 dark:text-white dark:border-slate-600 dark:hover:bg-slate-600 transition-colors">Batal</button>
+                <button onclick="reviewPeminjaman()" class="px-5 py-2.5 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+                    Lanjut Konfirmasi <i class="fas fa-arrow-right"></i>
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI (STEP 2) -->
+    <div id="konfirmasiModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-[60] p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md overflow-hidden shadow-2xl transform transition-all">
+            <div class="bg-blue-600 p-5 text-center relative">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-2 text-blue-600 text-xl shadow-lg">
+                    <i class="fas fa-clipboard-check"></i>
+                </div>
+                <h3 class="font-bold text-lg text-white">Konfirmasi Peminjaman</h3>
+                <p class="text-blue-100 text-xs">Periksa kembali data Anda sebelum disubmit</p>
+            </div>
+            
+            <div class="p-6 space-y-4">
+                <div class="bg-gray-50 dark:bg-slate-700/50 p-4 rounded-xl border border-gray-100 dark:border-slate-600 text-sm">
+                    <p class="mb-1 text-xs text-gray-500 dark:text-gray-400">Peminjam:</p>
+                    <p class="font-bold text-gray-800 dark:text-white mb-2" id="confNamaPeminjam">-</p>
+                    
+                    <div class="grid grid-cols-2 gap-2 text-xs mb-3">
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400">NIM / Konsentrasi:</p>
+                            <p class="font-semibold text-gray-800 dark:text-white" id="confNimProdi">-</p>
+                        </div>
+                        <div>
+                            <p class="text-gray-500 dark:text-gray-400">WhatsApp:</p>
+                            <p class="font-semibold text-gray-800 dark:text-white" id="confWa">-</p>
+                        </div>
+                    </div>
+                    
+                    <p class="text-xs text-gray-500 dark:text-gray-400 mt-2">Dosen Pengampu:</p>
+                    <p class="font-semibold text-gray-800 dark:text-white mb-3" id="confDosen">-</p>
+
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Waktu Pinjam - Kembali:</p>
+                    <p class="font-semibold text-gray-800 dark:text-white mb-3" id="confTanggal">-</p>
+                    
+                    <p class="text-xs text-gray-500 dark:text-gray-400">Barang/Ruang dipinjam:</p>
+                    <ul id="confItems" class="list-disc pl-5 mt-1 font-semibold text-gray-800 dark:text-white max-h-24 overflow-y-auto"></ul>
+                </div>
+
+                <div class="flex items-start gap-3 mt-4 bg-yellow-50 dark:bg-yellow-900/20 p-3 rounded-lg border border-yellow-200 dark:border-yellow-700/50">
+                    <input type="checkbox" id="checkSetujuPinjam" class="mt-1 w-4 h-4 text-blue-600 border-gray-300 rounded cursor-pointer">
+                    <label for="checkSetujuPinjam" class="text-xs text-gray-700 dark:text-gray-300 cursor-pointer">
+                        Saya bertanggung jawab atas alat/ruang ini. Saya bersedia/telah melakukan konfirmasi ke 
+                        <a href="https://api.whatsapp.com/send/?phone=6285158173155&text=Halo%20Admin%20Lab%20Fikomm,%20saya%20ingin%20konfirmasi%20peminjaman.&type=phone_number&app_absent=0" target="_blank" class="text-blue-600 dark:text-blue-400 font-bold hover:underline">
+                            <i class="fab fa-whatsapp"></i> Hotline WA Lab Fikomm
+                        </a>.
+                    </label>
+                </div>
+            </div>
+
+            <div class="p-5 border-t border-gray-100 dark:border-slate-700 flex gap-3">
+                <button onclick="document.getElementById('konfirmasiModal').classList.add('hidden')" class="flex-1 py-2.5 text-sm font-medium text-gray-600 bg-gray-100 rounded-lg hover:bg-gray-200 dark:bg-slate-700 dark:text-white dark:hover:bg-slate-600 transition-colors">Periksa / Edit</button>
+                <button onclick="submitPeminjaman()" class="flex-1 py-2.5 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50" id="btnSubmitFinal">Konfirmasi Pinjam</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL TIKET BUKTI PINJAM -->
+    <div id="buktiPinjamModal" class="fixed inset-0 bg-black/80 backdrop-blur-sm hidden items-center justify-center z-[70] p-4">
+        <div class="bg-white rounded-xl w-full max-w-sm overflow-hidden shadow-2xl relative print:w-full print:max-w-none print:shadow-none">
+            <!-- Pola Potongan Kertas -->
+            <div class="absolute -left-3 top-20 w-6 h-6 bg-black/80 rounded-full print:hidden"></div>
+            <div class="absolute -right-3 top-20 w-6 h-6 bg-black/80 rounded-full print:hidden"></div>
+            <div class="border-b-2 border-dashed border-gray-300 absolute w-full top-[92px] z-0"></div>
+            
+            <div class="p-6 relative z-10 text-center bg-white text-gray-800">
+                <i class="fas fa-check-circle text-5xl text-green-500 mb-2"></i>
+                <h3 class="font-black text-xl mb-1 uppercase tracking-wider text-gray-900">Tiket Peminjaman</h3>
+                <p class="text-[10px] text-gray-500 mb-6 uppercase">Menunggu Konfirmasi Petugas</p>
+                
+                <div class="text-left text-sm space-y-2 mb-6 bg-gray-50 p-4 rounded border border-gray-100" id="receiptDetailBox">
+                    <!-- Data Receipt -->
+                </div>
+                
+                <div class="flex justify-center mb-6">
+                    <div class="w-32 h-32 bg-gray-100 flex items-center justify-center rounded border border-gray-200">
+                        <i class="fas fa-qrcode text-6xl text-gray-400"></i>
+                    </div>
+                </div>
+                
+                <p class="text-[10px] text-gray-400 mb-6">* Tunjukkan tiket ini (atau screenshot) kepada petugas jaga Laboratorium untuk verifikasi.</p>
+                
+                <button onclick="tutupBuktiDanReset()" class="w-full py-3 text-sm font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors print:hidden shadow-lg">
+                    Selesai & Tutup
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL JADWAL PEMINJAMAN -->
+    <div id="jadwalModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-[80] p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-md max-h-[80vh] flex flex-col shadow-2xl overflow-hidden relative">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center bg-gray-50 dark:bg-slate-700/50">
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white flex items-center gap-2">
+                    <i class="fas fa-calendar-check text-blue-600 dark:text-blue-400"></i> Jadwal Peminjaman
+                </h3>
+                <button onclick="closeJadwalModal()" class="text-gray-400 hover:text-red-500 transition-colors">
+                    <i class="fas fa-times text-xl"></i>
+                </button>
+            </div>
+            <div class="p-4 border-b border-gray-100 dark:border-slate-700 bg-blue-50/50 dark:bg-slate-800">
+                <p class="text-xs text-gray-500 dark:text-gray-400">Pengecekan Ketersediaan Item:</p>
+                <p class="font-bold text-sm text-gray-800 dark:text-white" id="jadwalItemName">-</p>
+            </div>
+            <div class="flex-1 overflow-y-auto p-4" id="jadwalListContainer">
+                <!-- Data jadwal dimuat disini -->
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL PERINGATAN BENTROK JADWAL -->
+    <div id="clashModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-[90] p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-sm overflow-hidden shadow-2xl transform transition-all relative">
+            <div class="bg-red-500 p-5 text-center">
+                <div class="w-12 h-12 bg-white rounded-full flex items-center justify-center mx-auto mb-2 text-red-500 text-xl shadow-lg">
+                    <i class="fas fa-exclamation-triangle"></i>
+                </div>
+                <h3 class="font-bold text-lg text-white">Jadwal Tabrakan!</h3>
+            </div>
+            <div class="p-5 text-center">
+                <p class="text-sm text-gray-600 dark:text-gray-300 mb-4">Peminjaman gagal karena item/ruang di bawah ini tidak memiliki cukup sisa unit pada waktu tersebut:</p>
+                <div id="clashDetails" class="text-left bg-red-50 dark:bg-red-900/20 p-3 rounded-lg border border-red-100 dark:border-red-800/50 text-xs font-semibold text-red-600 dark:text-red-400 mb-4 whitespace-pre-wrap"></div>
+                <button onclick="document.getElementById('clashModal').classList.add('hidden'); document.getElementById('clashModal').classList.remove('flex');" class="w-full py-2.5 text-sm font-bold text-white bg-gray-600 rounded-lg hover:bg-gray-700 transition-colors shadow-md">
+                    Kembali & Ubah Waktu
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL KONFIRMASI PENGEMBALIAN BARANG (PETUGAS) -->
+    <div id="returnModal" class="fixed inset-0 bg-black/70 backdrop-blur-sm hidden items-center justify-center z-[120] p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-lg overflow-hidden shadow-2xl flex flex-col max-h-[90vh]">
+            <div class="px-6 py-4 border-b border-gray-200 dark:border-slate-700 flex justify-between items-center bg-green-600 text-white">
+                <h3 class="font-bold text-base flex items-center gap-2">
+                    <i class="fas fa-clipboard-check"></i> Konfirmasi Pengembalian Barang
+                </h3>
+                <button onclick="closeReturnModal()" class="text-white/80 hover:text-white transition-colors">
+                    <i class="fas fa-times text-lg"></i>
+                </button>
+            </div>
+
+            <div class="p-6 overflow-y-auto space-y-4 flex-1">
+                <div class="bg-gray-50 dark:bg-slate-700/40 p-3 rounded-xl border border-gray-100 dark:border-slate-700 text-xs">
+                    <p class="text-gray-500 dark:text-gray-400">Peminjam:</p>
+                    <p class="font-bold text-sm text-gray-800 dark:text-white" id="returnBorrowerName">-</p>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-2">Cek Kondisi Barang yang Dikembalikan *</label>
+                    <div id="returnItemsContainer" class="space-y-2.5">
+                        <!-- Daftar item & pilihan kondisi dirender di sini -->
+                    </div>
+                </div>
+
+                <div>
+                    <label class="block text-xs font-bold uppercase text-gray-500 dark:text-gray-400 mb-1">Deskripsi / Catatan Pengembalian *</label>
+                    <textarea id="returnCatatan" rows="3" placeholder="Contoh: Semua alat kembali lengkap dan berfungsi normal / Ada goresan pada bodi..." class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-xl focus:outline-none focus:ring-2 focus:ring-green-500 resize-none"></textarea>
+                </div>
+            </div>
+
+            <div class="p-4 border-t border-gray-200 dark:border-slate-700 flex justify-end gap-3 bg-gray-50 dark:bg-slate-800">
+                <button onclick="closeReturnModal()" class="px-4 py-2 text-xs font-semibold text-gray-600 bg-white border border-gray-300 rounded-lg hover:bg-gray-100 dark:bg-slate-700 dark:text-gray-200 dark:border-slate-600 transition-colors">
+                    Batal
+                </button>
+                <button onclick="prosesKonfirmasiKembali()" class="px-5 py-2 text-xs font-bold text-white bg-green-600 rounded-lg hover:bg-green-700 transition-colors shadow flex items-center gap-1.5">
+                    <i class="fas fa-check-circle"></i> Simpan & Selesaikan
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL LOGIN UMUM -->
+    <div id="loginModal" class="fixed inset-0 bg-black/60 backdrop-blur-sm hidden items-center justify-center z-50 p-4">
+        <div class="bg-white dark:bg-slate-800 rounded-2xl w-full max-w-xs p-6 shadow-2xl transform transition-all relative">
+            <button onclick="closeLoginModal()" class="absolute top-4 right-4 text-gray-400 hover:text-gray-600 dark:hover:text-gray-200"><i class="fas fa-times text-xl"></i></button>
+            <div class="text-center mb-6 mt-2">
+                <div class="w-12 h-12 bg-blue-100 dark:bg-slate-700 text-blue-600 dark:text-blue-400 rounded-full flex items-center justify-center mx-auto mb-3">
+                    <i class="fas fa-user-shield text-xl"></i>
+                </div>
+                <h3 class="font-bold text-lg text-gray-800 dark:text-white">Akses Petugas</h3>
+            </div>
+            
+            <div class="space-y-4">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Kata Sandi</label>
+                    <div class="relative">
+                        <input type="password" id="inputPassword" placeholder="••••••••" class="w-full px-4 py-2 border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500 pr-10">
+                        <i class="fas fa-eye absolute right-3 top-3 text-gray-400 cursor-pointer hover:text-gray-600" onclick="togglePasswordVisibility('inputPassword', this)"></i>
+                    </div>
+                    <p id="loginError" class="text-xs text-red-500 mt-1 hidden">Password salah.</p>
+                </div>
+                <button onclick="verifyLogin()" class="w-full py-2.5 text-sm font-bold text-white bg-blue-600 rounded-lg hover:bg-blue-700 transition-colors shadow-md">
+                    Masuk
+                </button>
+            </div>
+        </div>
+    </div>
+
+    <!-- PANEL PETUGAS MODAL FULLSCREEN -->
+    <div id="petugasPanelModal" class="fixed inset-0 bg-slate-100 dark:bg-slate-900 hidden flex-col z-[100] transition-colors duration-200">
+        <!-- Header -->
+        <header class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 h-16 flex items-center justify-between px-6 shrink-0 shadow-sm">
+            <div class="flex items-center gap-3">
+                <div class="w-8 h-8 bg-red-100 text-red-600 rounded flex items-center justify-center"><i class="fas fa-shield-alt"></i></div>
+                <h2 class="text-lg font-bold text-gray-800 dark:text-white">Panel Administrasi Petugas</h2>
+            </div>
+            <button onclick="closePetugasPanel()" class="text-gray-500 hover:text-red-500 bg-gray-100 hover:bg-red-50 dark:bg-slate-700 dark:hover:bg-slate-600 dark:text-gray-300 w-8 h-8 rounded-full flex items-center justify-center transition-colors">
+                <i class="fas fa-times"></i>
+            </button>
+        </header>
+
+        <!-- Tabs Navigation -->
+        <div class="bg-white dark:bg-slate-800 border-b border-gray-200 dark:border-slate-700 px-6 pt-3 flex gap-6 overflow-x-auto">
+            <button onclick="switchAdminTab('tab-peminjaman')" id="btn-tab-peminjaman" class="admin-tab text-sm font-bold text-blue-600 border-b-2 border-blue-600 pb-3 px-2 whitespace-nowrap">
+                <i class="fas fa-clipboard-list mr-1"></i> Data Peminjaman
+            </button>
+            <button onclick="switchAdminTab('tab-stok')" id="btn-tab-stok" class="admin-tab text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-b-2 border-transparent pb-3 px-2 whitespace-nowrap">
+                <i class="fas fa-boxes mr-1"></i> Kelola Stok & Status
+            </button>
+            <button onclick="switchAdminTab('tab-tambah')" id="btn-tab-tambah" class="admin-tab text-sm font-medium text-gray-500 dark:text-gray-400 hover:text-gray-800 dark:hover:text-gray-200 border-b-2 border-transparent pb-3 px-2 whitespace-nowrap">
+                <i class="fas fa-plus-circle mr-1"></i> Tambah Item Baru
+            </button>
+        </div>
+
+        <!-- Content Tabs -->
+        <div class="flex-1 overflow-y-auto p-6 bg-slate-50 dark:bg-slate-900">
+            
+            <!-- Tab 1: Peminjaman -->
+            <div id="tab-peminjaman" class="admin-tab-content space-y-4">
+                <div class="flex justify-between items-center bg-white dark:bg-slate-800 p-4 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm">
+                    <h3 class="font-bold text-gray-800 dark:text-white">Riwayat & Pengembalian</h3>
+                    <div class="flex items-center gap-4 text-sm font-semibold">
+                        <div class="text-center px-4 border-r border-gray-200 dark:border-slate-600">
+                            <span class="block text-gray-500 dark:text-gray-400 text-xs uppercase">Menunggu</span>
+                            <span class="text-orange-500 text-lg" id="stat-menunggu">0</span>
+                        </div>
+                        <div class="text-center px-4 border-r border-gray-200 dark:border-slate-600">
+                            <span class="block text-gray-500 dark:text-gray-400 text-xs uppercase">Dipinjam</span>
+                            <span class="text-blue-600 text-lg" id="stat-dipinjam">0</span>
+                        </div>
+                        <div class="text-center pl-4">
+                            <span class="block text-gray-500 dark:text-gray-400 text-xs uppercase">Selesai</span>
+                            <span class="text-green-500 text-lg" id="stat-selesai">0</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 dark:bg-slate-700/50 text-gray-500 dark:text-gray-400 text-[11px] uppercase tracking-wider border-b border-gray-200 dark:border-slate-700">
+                                    <th class="py-3 px-4 font-semibold">Waktu Pinjam & Status</th>
+                                    <th class="py-3 px-4 font-semibold">Peminjam</th>
+                                    <th class="py-3 px-4 font-semibold">Daftar Item (Qty)</th>
+                                    <th class="py-3 px-4 font-semibold text-right">Aksi Petugas</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tablePeminjamanBody" class="text-sm divide-y divide-gray-100 dark:divide-slate-700">
+                                <!-- Data Peminjaman Petugas Render Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 2: Stok & Status -->
+            <div id="tab-stok" class="admin-tab-content hidden space-y-4">
+                <div class="flex justify-between items-center">
+                    <h3 class="font-bold text-gray-800 dark:text-white">Manajemen Stok Aktual</h3>
+                    <input type="text" id="searchAdminStok" placeholder="Cari item..." class="px-3 py-1.5 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg focus:outline-none focus:ring-1 focus:ring-blue-500">
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm overflow-hidden">
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left border-collapse">
+                            <thead>
+                                <tr class="bg-gray-50 dark:bg-slate-700/50 text-gray-500 dark:text-gray-400 text-[11px] uppercase tracking-wider border-b border-gray-200 dark:border-slate-700">
+                                    <th class="py-3 px-4 font-semibold w-12">ID</th>
+                                    <th class="py-3 px-4 font-semibold">Item & Kategori</th>
+                                    <th class="py-3 px-4 font-semibold text-center w-32">Ubah Stok Unit</th>
+                                    <th class="py-3 px-4 font-semibold text-center w-40">Status Kondisi</th>
+                                    <th class="py-3 px-4 font-semibold text-center w-20">Hapus</th>
+                                </tr>
+                            </thead>
+                            <tbody id="tableStokBody" class="text-sm divide-y divide-gray-100 dark:divide-slate-700">
+                                <!-- Data Stok Admin Render Here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tab 3: Tambah Item -->
+            <div id="tab-tambah" class="admin-tab-content hidden">
+                <div class="bg-white dark:bg-slate-800 p-6 rounded-xl border border-gray-200 dark:border-slate-700 shadow-sm max-w-2xl mx-auto">
+                    <h3 class="font-bold text-gray-800 dark:text-white mb-6 border-b border-gray-100 dark:border-slate-700 pb-2">Form Tambah Katalog Baru</h3>
+                    
+                    <form id="formTambahAlat" onsubmit="event.preventDefault(); tambahAlatBaru();" class="space-y-4">
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-1">
+                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">ID (Otomatis)</label>
+                                <input type="text" id="newId" class="w-full px-3 py-2 text-sm bg-gray-100 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg text-gray-500" readonly>
+                            </div>
+                            <div class="col-span-1">
+                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Kategori/Jenis</label>
+                                <select id="newKategori" required class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                                    <option value="Broadcasting">Broadcasting</option>
+                                    <option value="Fasilitas Ruangan">Fasilitas Ruangan</option>
+                                    <option value="Optik">Optik</option>
+                                    <option value="Elektronik">Elektronik</option>
+                                    <option value="Audio">Audio</option>
+                                    <option value="Lighting">Lighting</option>
+                                    <option value="Aksesoris">Aksesoris</option>
+                                    <option value="Gelas">Gelas</option>
+                                    <option value="Mesin">Mesin Lab</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Nama Item Lengkap</label>
+                            <input type="text" id="newNama" required placeholder="Contoh: Kamera Sony A7 IV" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Spesifikasi Singkat</label>
+                            <input type="text" id="newSpek" placeholder="Contoh: 4K Video, Fullframe..." class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                        </div>
+                        
+                        <div class="grid grid-cols-2 gap-4">
+                            <div class="col-span-1">
+                                <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Jumlah Stok Unit</label>
+                                <input type="number" id="newStok" required min="1" value="1" class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-blue-500">
+                            </div>
+                        </div>
+                        
+                        <div>
+                            <label class="block text-xs font-semibold text-gray-500 dark:text-gray-400 mb-1">Link Gambar (Google Drive)</label>
+                            <input type="url" id="newGambar" placeholder="https://drive.google.com/file/d/..." class="w-full px-3 py-2 text-sm border border-gray-300 dark:border-slate-600 dark:bg-slate-800 dark:text-white rounded-lg focus:outline-none focus:border-blue-500 mb-2" oninput="previewNewImage()">
+                            <div class="w-full h-40 bg-gray-50 dark:bg-slate-700 border border-gray-200 dark:border-slate-600 rounded-lg flex items-center justify-center overflow-hidden p-2">
+                                <img id="previewImage" src="" alt="Preview" class="max-h-full hidden">
+                                <span id="previewPlaceholder" class="text-xs text-gray-400">Preview Gambar</span>
+                            </div>
+                        </div>
+
+                        <div class="pt-4 border-t border-gray-100 dark:border-slate-700 flex justify-end">
+                            <button type="submit" class="px-6 py-2.5 bg-blue-600 text-white font-bold rounded-lg shadow hover:bg-blue-700 transition-colors">
+                                <i class="fas fa-save mr-1"></i> Simpan Item Baru
+                            </button>
+                        </div>
+                    </form>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- Script Integrasi JavaScript & Logika Web -->
+    <script>
+        // ======= PENGATURAN KONEKSI GOOGLE SHEET =======
+        const DEFAULT_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyDGyrMQYaLxm7gHqogOWud-fzwxPBvRuXwIIkSAeSRaKCgEorc2YPTH3JZccben--m/exec';
+        const GOOGLE_SHEET_ID = '1TDfsWQNSmwHWFhr6VzmcCSfV89KBSY4qVa9U2slCqlo';
+
+        // ======= VARIABEL STATE (LOCALSTORAGE v4) =======
+        const STORAGE_KEY_ALAT = 'fikomm_alat_v4';
+        const STORAGE_KEY_PINJAM = 'fikomm_pinjam_v4';
+        
+        let dataAlatLab = [];
+        let dataPeminjaman = [];
+        let cart = []; // Keranjang peminjaman
+        let pendingLoanDraft = null;
+        let currentReturnIdx = null;
+        let currentMenu = 'semua';
+        let isSyncing = false;
+
+        // Data Bawaan (Default Data - 23 Alat + 3 Ruang) jika Sheet kosong / Pertama buka
+        const defaultAlat = [
+            { ID_Alat: 'RNG-01', Nama_Alat: 'LAB BROADCASTING (TV & RADIO)', Kategori: 'Fasilitas Ruangan', Stok_Tersedia: 1, Kondisi: 'Baik', Spesifikasi: 'Studio Green Screen, Control Room', Gambar_URL: 'https://images.unsplash.com/photo-1598075727181-42065da5a065?w=400&q=80' },
+            { ID_Alat: 'RNG-02', Nama_Alat: 'LAB PUBLIC RELATIONS', Kategori: 'Fasilitas Ruangan', Stok_Tersedia: 1, Kondisi: 'Baik', Spesifikasi: 'Ruang Konferensi Pers, Presentasi', Gambar_URL: 'https://images.unsplash.com/photo-1573164713714-d95e436ab8d6?w=400&q=80' },
+            { ID_Alat: 'RNG-03', Nama_Alat: 'LAB MARKETING COMMUNICATION', Kategori: 'Fasilitas Ruangan', Stok_Tersedia: 1, Kondisi: 'Baik', Spesifikasi: 'Ruang Riset, Diskusi Kreatif', Gambar_URL: 'https://images.unsplash.com/photo-1517048676732-d65bc937f952?w=400&q=80' },
+            { ID_Alat: 'CAM-01', Nama_Alat: 'KAMERA SONY ALPHA A7S III', Kategori: 'Broadcasting', Stok_Tersedia: 2, Kondisi: 'Baik', Spesifikasi: '4K 120p, 10-bit', Gambar_URL: 'https://images.unsplash.com/photo-1516724562728-afc824a36e84?w=400&q=80' },
+            { ID_Alat: 'CAM-02', Nama_Alat: 'KAMERA CANON EOS R5', Kategori: 'Broadcasting', Stok_Tersedia: 1, Kondisi: 'Baik', Spesifikasi: '8K Video', Gambar_URL: 'https://images.unsplash.com/photo-1629130752495-20092f693e50?w=400&q=80' },
+            { ID_Alat: 'CAM-03', Nama_Alat: 'PANASONIC LUMIX GH5', Kategori: 'Broadcasting', Stok_Tersedia: 3, Kondisi: 'Baik', Spesifikasi: 'MFT 4K', Gambar_URL: 'https://images.unsplash.com/photo-1599818828343-41bb3356e72c?w=400&q=80' },
+            { ID_Alat: 'LNS-01', Nama_Alat: 'LENSA CANON EF 50MM F/1.8', Kategori: 'Broadcasting', Stok_Tersedia: 4, Kondisi: 'Baik', Spesifikasi: 'Prime Lens', Gambar_URL: 'https://images.unsplash.com/photo-1516961642265-531546e84af2?w=400&q=80' },
+            { ID_Alat: 'LNS-02', Nama_Alat: 'LENSA SONY FE 24-70MM', Kategori: 'Broadcasting', Stok_Tersedia: 2, Kondisi: 'Baik', Spesifikasi: 'Zoom G Master', Gambar_URL: 'https://images.unsplash.com/photo-1500634245200-e5245c7574ef?w=400&q=80' },
+            { ID_Alat: 'AUD-01', Nama_Alat: 'RODE NTG4+ SHOTGUN MIC', Kategori: 'Audio', Stok_Tersedia: 3, Kondisi: 'Baik', Spesifikasi: 'Directional', Gambar_URL: 'https://images.unsplash.com/photo-1590602847861-f357a9332bbc?w=400&q=80' },
+            { ID_Alat: 'AUD-02', Nama_Alat: 'ZOOM H6 HANDY RECORDER', Kategori: 'Audio', Stok_Tersedia: 2, Kondisi: 'Baik', Spesifikasi: '6-Track', Gambar_URL: 'https://images.unsplash.com/photo-1583394838336-acd977736f90?w=400&q=80' },
+            { ID_Alat: 'AUD-03', Nama_Alat: 'SENNHEISER EW 112P G4', Kategori: 'Audio', Stok_Tersedia: 4, Kondisi: 'Baik', Spesifikasi: 'Wireless Lav', Gambar_URL: 'https://images.unsplash.com/photo-1628198944583-bf01004bb619?w=400&q=80' },
+            { ID_Alat: 'LIG-01', Nama_Alat: 'GODOX SL-60W LED VIDEO LIGHT', Kategori: 'Lighting', Stok_Tersedia: 4, Kondisi: 'Baik', Spesifikasi: 'Daylight 5600K', Gambar_URL: 'https://images.unsplash.com/photo-1550684848-fac1c5b4e853?w=400&q=80' },
+            { ID_Alat: 'LIG-02', Nama_Alat: 'APUTURE 120D II STUDIO LIGHT', Kategori: 'Lighting', Stok_Tersedia: 2, Kondisi: 'Baik', Spesifikasi: 'Studio LED', Gambar_URL: 'https://images.unsplash.com/photo-1579679124446-f9493922c069?w=400&q=80' },
+            { ID_Alat: 'LIG-03', Nama_Alat: 'NEEWER RING LIGHT 18 INCH', Kategori: 'Lighting', Stok_Tersedia: 5, Kondisi: 'Baik', Spesifikasi: 'With Stand', Gambar_URL: 'https://images.unsplash.com/photo-1590059914801-b7df25555d4b?w=400&q=80' },
+            { ID_Alat: 'ACC-01', Nama_Alat: 'DJI RS 3 GIMBAL STABILIZER', Kategori: 'Aksesoris', Stok_Tersedia: 2, Kondisi: 'Baik', Spesifikasi: '3-Axis', Gambar_URL: 'https://images.unsplash.com/photo-1605648816773-89ea2738914c?w=400&q=80' },
+            { ID_Alat: 'ACC-02', Nama_Alat: 'TRIPOD MANFROTTO 504X', Kategori: 'Aksesoris', Stok_Tersedia: 4, Kondisi: 'Baik', Spesifikasi: 'Fluid Head', Gambar_URL: 'https://images.unsplash.com/photo-1527003444857-e6f534151a61?w=400&q=80' },
+            { ID_Alat: 'ACC-03', Nama_Alat: 'BLACKMAGIC ATEM MINI PRO', Kategori: 'Broadcasting', Stok_Tersedia: 1, Kondisi: 'Baik', Spesifikasi: 'Switcher', Gambar_URL: 'https://images.unsplash.com/photo-1616423640778-28d1b53229bd?w=400&q=80' },
+            { ID_Alat: 'ACC-04', Nama_Alat: 'MONITOR FEELWORLD F6 PLUS', Kategori: 'Aksesoris', Stok_Tersedia: 3, Kondisi: 'Baik', Spesifikasi: '5.5 inch', Gambar_URL: 'https://images.unsplash.com/photo-1598075727181-42065da5a065?w=400&q=80' },
+            { ID_Alat: 'ACC-05', Nama_Alat: 'SD CARD SANDISK EXTREME 128GB', Kategori: 'Aksesoris', Stok_Tersedia: 10, Kondisi: 'Baik', Spesifikasi: '150MB/s', Gambar_URL: 'https://images.unsplash.com/photo-1624445831610-8b22a00c5c4e?w=400&q=80' },
+            { ID_Alat: 'ACC-06', Nama_Alat: 'GREEN SCREEN BACKDROP 3X6M', Kategori: 'Aksesoris', Stok_Tersedia: 2, Kondisi: 'Baik', Spesifikasi: 'Kain Hijau', Gambar_URL: 'https://images.unsplash.com/photo-1516724562728-afc824a36e84?w=400&q=80' },
+            { ID_Alat: 'L-01', Nama_Alat: 'MIKROSKOP BINOKULER OLYMPUS', Kategori: 'Optik', Stok_Tersedia: 5, Kondisi: 'Baik', Spesifikasi: 'CX23', Gambar_URL: 'https://images.unsplash.com/photo-1582719471384-894fbb16e074?w=400&q=80' },
+            { ID_Alat: 'L-02', Nama_Alat: 'OSILOSKOP DIGITAL TEKTRONIX', Kategori: 'Elektronik', Stok_Tersedia: 2, Kondisi: 'Baik', Spesifikasi: 'Digital', Gambar_URL: 'https://images.unsplash.com/photo-1588523315750-671e72e811c7?w=400&q=80' },
+            { ID_Alat: 'L-03', Nama_Alat: 'CENTRIFUGE LABORATORY', Kategori: 'Mesin Lab', Stok_Tersedia: 8, Kondisi: 'Baik', Spesifikasi: '4000 RPM', Gambar_URL: 'https://images.unsplash.com/photo-1631557088950-8302fbc5ea8a?w=400&q=80' },
+            { ID_Alat: 'L-04', Nama_Alat: 'GELAS BEAKER BOROSILIKAT', Kategori: 'Gelas', Stok_Tersedia: 24, Kondisi: 'Baik', Spesifikasi: '500ML', Gambar_URL: 'https://images.unsplash.com/photo-1532094349884-543bc11b234d?w=400&q=80' },
+            { ID_Alat: 'L-05', Nama_Alat: 'MULTIMETER DIGITAL FLUKE 117', Kategori: 'Elektronik', Stok_Tersedia: 10, Kondisi: 'Baik', Spesifikasi: 'Fluke 117', Gambar_URL: 'https://images.unsplash.com/photo-1588523315750-671e72e811c7?w=400&q=80' },
+            { ID_Alat: 'L-06', Nama_Alat: 'NERACA ANALITIK DIGITAL', Kategori: 'Elektronik', Stok_Tersedia: 3, Kondisi: 'Baik', Spesifikasi: 'Digital Presisi', Gambar_URL: 'https://images.unsplash.com/photo-1615632194954-41d399fb82d6?w=400&q=80' }
+        ];
+
+        // INISIALISASI AWAL
+        function initApp() {
+            // Load theme
+            if (localStorage.getItem('theme') === 'dark' || (!('theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            } else {
+                document.documentElement.classList.remove('dark');
+            }
+            
+            // Load Local Data first for speed
+            const localAlat = localStorage.getItem(STORAGE_KEY_ALAT);
+            const localPinjam = localStorage.getItem(STORAGE_KEY_PINJAM);
+            
+            if (localAlat) dataAlatLab = JSON.parse(localAlat);
+            else dataAlatLab = [...defaultAlat];
+            
+            if (localPinjam) dataPeminjaman = JSON.parse(localPinjam);
+
+            saveDataLocally();
+            
+            // Start Auto Sync Cloud
+            syncNowFromCloud();
+            
+            // Setup Listeners
+            document.getElementById('searchInput').addEventListener('input', filterKatalog);
+            document.getElementById('categoryFilter').addEventListener('change', filterKatalog);
+            document.getElementById('searchAdminStok').addEventListener('input', renderAdminStok);
+        }
+
+        // TEMA GELAP / TERANG
+        function toggleTheme() {
+            const html = document.documentElement;
+            html.classList.toggle('dark');
+            if (html.classList.contains('dark')) {
+                localStorage.setItem('theme', 'dark');
+            } else {
+                localStorage.setItem('theme', 'light');
+            }
+        }
+
+        // NAVIGASI MOBILE SIDEBAR
+        function toggleMobileSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (!sidebar || !backdrop) return;
+
+            const isClosed = sidebar.classList.contains('-translate-x-full');
+            if (isClosed) {
+                sidebar.classList.remove('-translate-x-full');
+                backdrop.classList.remove('hidden');
+            } else {
+                sidebar.classList.add('-translate-x-full');
+                backdrop.classList.add('hidden');
+            }
+        }
+
+        function closeMobileSidebar() {
+            const sidebar = document.getElementById('mainSidebar');
+            const backdrop = document.getElementById('mobileSidebarBackdrop');
+            if (sidebar) sidebar.classList.add('-translate-x-full');
+            if (backdrop) backdrop.classList.add('hidden');
+        }
+
+        // ======= GOOGLE SHEET CLOUD SYNC LOGIC =======
+        
+        async function syncNowFromCloud() {
+            if(isSyncing) return;
+            isSyncing = true;
+            updateSyncStatus('<i class="fas fa-sync fa-spin text-blue-500 mr-1"></i> Sinkronisasi...', 'text-blue-500');
+
+            try {
+                const response = await fetch(`${DEFAULT_SCRIPT_URL}?action=get_all&sheetId=${GOOGLE_SHEET_ID}`);
+                if (!response.ok) throw new Error("Gagal menghubungi server Apps Script.");
+                
+                const data = await response.json();
+                
+                if (data.error) throw new Error(data.error);
+
+                if (data.inventaris && data.inventaris.length > 0) {
+                    dataAlatLab = data.inventaris;
+                } else {
+                    // Jika sheet kosong, biarkan default, lalu dorong ke cloud
+                    pushToCloud();
+                }
+
+                if (data.peminjaman) {
+                    dataPeminjaman = data.peminjaman;
+                }
+                
+                saveDataLocally();
+                updateSyncStatus('<i class="fas fa-cloud-check text-green-500 mr-1"></i> Data Tersinkronisasi', 'text-gray-500');
+
+            } catch (err) {
+                console.error("Sync Pull Error:", err);
+                updateSyncStatus('<i class="fas fa-cloud-upload-alt text-yellow-500 mr-1"></i> Mode Offline Lokal', 'text-yellow-600');
+            } finally {
+                isSyncing = false;
+                filterKatalog();
+            }
+        }
+
+        async function pushToCloud() {
+            updateSyncStatus('<i class="fas fa-arrow-up text-blue-500 mr-1"></i> Menyimpan ke Cloud...', 'text-blue-500');
+            try {
+                const payload = {
+                    action: 'sync_all',
+                    sheetId: GOOGLE_SHEET_ID,
+                    inventaris: dataAlatLab,
+                    peminjaman: dataPeminjaman
+                };
+                
+                const response = await fetch(DEFAULT_SCRIPT_URL, {
+                    method: 'POST',
+                    mode: 'no-cors', // Pakai no-cors agar lolos CORS policy Google, tapi tidak bisa baca response body sukses
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+                
+                updateSyncStatus('<i class="fas fa-cloud-check text-green-500 mr-1"></i> Tersimpan di Cloud', 'text-gray-500');
+            } catch (err) {
+                console.error("Sync Push Error:", err);
+                updateSyncStatus('<i class="fas fa-exclamation-circle text-red-500 mr-1"></i> Gagal Simpan Cloud', 'text-red-500');
+            }
+        }
+
+        function updateSyncStatus(html, colorClass) {
+            const el = document.getElementById('syncStatus');
+            if(el) {
+                el.innerHTML = html;
+                el.className = `hidden sm:flex items-center text-xs font-semibold mr-2 ${colorClass}`;
+            }
+        }
+
+        function saveDataLocally() {
+            localStorage.setItem(STORAGE_KEY_ALAT, JSON.stringify(dataAlatLab));
+            localStorage.setItem(STORAGE_KEY_PINJAM, JSON.stringify(dataPeminjaman));
+            updateStats();
+        }
+
+        // ======= KATALOG & RENDER =======
+
+        function getDriveDirectUrl(url) {
+            if (!url) return '';
+            if (url.includes('drive.google.com')) {
+                const match = url.match(/\/d\/([a-zA-Z0-9_-]+)/) || url.match(/id=([a-zA-Z0-9_-]+)/);
+                if (match && match[1]) {
+                    // Gunakan API thumbnail agar stabil, tidak hitam
+                    return `https://drive.google.com/thumbnail?id=${match[1]}&sz=w800`;
+                }
+            }
+            return url;
+        }
+
+        function switchMenu(tipe) {
+            currentMenu = tipe;
+            closeMobileSidebar();
+            document.querySelectorAll('.menu-item').forEach(el => {
+                el.classList.remove('bg-blue-50', 'dark:bg-blue-900/30', 'text-blue-700', 'dark:text-blue-400');
+                el.classList.add('text-gray-600', 'dark:text-gray-300');
+            });
+            const activeEl = document.getElementById('menu-' + tipe);
+            activeEl.classList.add('bg-blue-50', 'dark:bg-blue-900/30', 'text-blue-700', 'dark:text-blue-400');
+            activeEl.classList.remove('text-gray-600', 'dark:text-gray-300');
+
+            if(tipe === 'semua') {
+                document.getElementById('mainTitle').textContent = "Semua Katalog Inventaris";
+                document.getElementById('categoryFilter').value = 'Semua';
+                document.getElementById('categoryFilter').parentElement.classList.remove('hidden');
+            } else if (tipe === 'ruangan') {
+                document.getElementById('mainTitle').textContent = "Fasilitas Ruangan Lab";
+                document.getElementById('categoryFilter').value = 'Fasilitas Ruangan';
+                document.getElementById('categoryFilter').parentElement.classList.add('hidden');
+            } else if (tipe === 'alat') {
+                document.getElementById('mainTitle').textContent = "Peminjaman Alat";
+                document.getElementById('categoryFilter').value = 'Semua';
+                document.getElementById('categoryFilter').parentElement.classList.remove('hidden');
+            }
+            filterKatalog();
+        }
+
+        function filterKatalog() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            let cat = document.getElementById('categoryFilter').value;
+            
+            // Override behavior jika menu alat
+            if (currentMenu === 'alat' && cat === 'Semua') {
+                 // Sembunyikan Fasilitas Ruangan saat di mode 'alat'
+            } else if (currentMenu === 'ruangan') {
+                cat = 'Fasilitas Ruangan';
+            }
+
+            const filtered = dataAlatLab.filter(alat => {
+                const matchSearch = alat.Nama_Alat.toLowerCase().includes(search) || alat.ID_Alat.toLowerCase().includes(search) || (alat.Spesifikasi && alat.Spesifikasi.toLowerCase().includes(search));
+                
+                let matchCat = false;
+                if (currentMenu === 'alat' && cat === 'Semua') {
+                    matchCat = alat.Kategori !== 'Fasilitas Ruangan';
+                } else {
+                    matchCat = (cat === 'Semua') || (alat.Kategori === cat);
+                }
+
+                return matchSearch && matchCat;
+            });
+
+            renderKatalog(filtered);
+        }
+
+        function renderKatalog(data) {
+            const container = document.getElementById('katalog-container');
+            container.innerHTML = ''; 
+
+            if(data.length === 0) {
+                container.innerHTML = '<div class="col-span-full flex flex-col items-center justify-center py-20 text-gray-400 dark:text-gray-500"><i class="fas fa-box-open text-5xl mb-4 opacity-50"></i><p>Item tidak ditemukan.</p></div>';
+                return;
+            }
+
+            data.forEach(alat => {
+                const stokAman = parseInt(alat.Stok_Tersedia) > 0;
+                let kondisiText = alat.Kondisi || 'Baik';
+                
+                let statusBadge = '';
+                if (kondisiText === 'Rusak') statusBadge = 'bg-red-500 text-white';
+                else if (kondisiText === 'Kurang Baik') statusBadge = 'bg-yellow-500 text-white';
+                else if (!stokAman) statusBadge = 'bg-orange-500 text-white'; // Diubah jadi orange agar terlihat sebagai opsi booking
+                else statusBadge = 'bg-green-500 text-white';
+
+                // Ubah teks info agar mahasiswa tahu ini bisa di-booking
+                let statusTeksInfo = kondisiText === 'Rusak' ? 'RUSAK' : (kondisiText === 'Kurang Baik' ? 'KURANG BAIK' : (!stokAman ? 'DIPINJAM (BISA BOOKING)' : 'TERSEDIA'));
+                
+                const isRuangan = alat.Kategori === 'Fasilitas Ruangan';
+                const textTombol = isRuangan ? '<i class="fas fa-door-open mr-1"></i> Pinjam' : '<i class="fas fa-plus mr-1"></i> Keranjang';
+
+                // Cari qty yang sudah ada di keranjang untuk item ini
+                const inCart = cart.find(c => c.id === alat.ID_Alat);
+                const cartQtyText = inCart ? `<span class="absolute top-2 right-2 bg-blue-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow z-20">Di keranjang: ${inCart.qty}</span>` : '';
+
+                const html = `
+                    <div class="bg-white dark:bg-slate-800 rounded-2xl p-4 border border-gray-100 dark:border-slate-700 hover:shadow-xl dark:shadow-none dark:hover:border-blue-500/50 transition-all duration-300 flex flex-col items-center text-center relative group wix-shadow">
+                        ${cartQtyText}
+                        <div class="absolute top-4 left-4 ${statusBadge} text-[10px] font-bold px-2.5 py-1 rounded shadow-sm z-10">
+                            ${statusTeksInfo}
+                        </div>
+                        <div class="w-full h-44 flex items-center justify-center mb-4 mt-6 bg-gray-50/50 dark:bg-slate-700/30 rounded-xl p-4 overflow-hidden relative group-hover:bg-blue-50 dark:group-hover:bg-slate-700/60 transition-colors">
+                            <img src="${getDriveDirectUrl(alat.Gambar_URL)}" alt="${alat.Nama_Alat}" class="max-h-full max-w-full object-contain drop-shadow-sm group-hover:scale-105 transition-transform duration-500" onerror="this.src='https://placehold.co/400x300?text=No+Image'">
+                        </div>
+                        <p class="text-[10px] text-gray-400 dark:text-gray-500 font-bold mb-1 tracking-wider uppercase">${alat.Kategori}</p>
+                        <h3 class="text-sm font-bold text-gray-800 dark:text-gray-200 uppercase leading-snug mb-1 line-clamp-2 min-h-[2.5rem]">
+                            ${alat.Nama_Alat}
+                        </h3>
+                        <p class="text-xs text-gray-500 dark:text-gray-400 mb-2 truncate w-full px-2" title="${alat.Spesifikasi || '-'}">${alat.Spesifikasi || '-'}</p>
+                        <p class="text-blue-600 dark:text-blue-400 font-bold text-sm mb-4 bg-blue-50 dark:bg-blue-900/30 px-3 py-1 rounded-full border border-blue-100 dark:border-blue-800/50">Stok Saat Ini: ${alat.Stok_Tersedia}</p>
+                        <div class="flex gap-2 w-full mt-auto">
+                            <button onclick="openJadwalModal('${alat.ID_Alat}')" class="flex-1 py-2 text-[11px] font-bold rounded-xl border border-gray-300 dark:border-slate-600 text-gray-600 dark:text-gray-300 hover:bg-gray-100 dark:hover:bg-slate-700 transition-colors" title="Cek Jadwal Peminjaman">
+                                <i class="fas fa-calendar-alt"></i> Jadwal
+                            </button>
+                            <button onclick="addToCart('${alat.ID_Alat}')" class="flex-[1.5] border-2 border-blue-600 dark:border-blue-500 text-blue-600 dark:text-blue-400 hover:bg-blue-600 dark:hover:bg-blue-500 hover:text-white py-2 text-[11px] font-bold rounded-xl transition-colors ${kondisiText === 'Rusak' ? 'opacity-50 cursor-not-allowed border-gray-400 text-gray-400 hover:bg-transparent hover:text-gray-400' : ''}" ${kondisiText === 'Rusak' ? 'disabled' : ''}>
+                                ${textTombol}
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function updateStats() {
+            document.getElementById('stat-total-macam').textContent = dataAlatLab.length;
+            const totalUnit = dataAlatLab.reduce((sum, item) => sum + (parseInt(item.Stok_Tersedia) || 0), 0);
+            document.getElementById('stat-total-unit').textContent = totalUnit;
+            updateCartBadge();
+        }
+
+        // ======= SISTEM KERANJANG (MULTI-PINJAM) =======
+        // Maksimal stok fisik (Tetap minimal 1 walaupun stok saat ini 0 agar tetap bisa di-booking untuk beda tanggal)
+        function getMaxStokAlat(idAlat) {
+            const alat = dataAlatLab.find(a => a.ID_Alat === idAlat);
+            if(!alat) return 1;
+            let total = parseInt(alat.Stok_Tersedia) || 0;
+            dataPeminjaman.forEach(pj => {
+                // Hanya hitung yang aktif (Sudah di-ACC / Sedang Dipinjam)
+                if(pj.status === 'Sedang Dipinjam' && Array.isArray(pj.items)) {
+                    const it = pj.items.find(i => i.id === idAlat);
+                    if(it) total += (parseInt(it.qty) || 1);
+                }
+            });
+            // Cek juga dari data default jika ada
+            const defAlat = defaultAlat.find(d => d.ID_Alat === idAlat);
+            const defStok = defAlat ? (parseInt(defAlat.Stok_Tersedia) || 1) : 1;
+            
+            // Pastikan selalu mengembalikan minimal 1 unit agar barang yang stoknya 0 tetap bisa masuk keranjang untuk booking tanggal lain
+            return Math.max(total, defStok, 1);
+        }
+
+        function updateCartBadge() {
+            const totalItems = cart.reduce((sum, item) => sum + item.qty, 0);
+            const badge = document.getElementById('cartBadge');
+            badge.textContent = totalItems;
+            if(totalItems > 0) {
+                badge.classList.remove('hidden');
+                badge.classList.add('flex');
+            } else {
+                badge.classList.add('hidden');
+                badge.classList.remove('flex');
+            }
+
+            // Update badge di sidebar juga
+            const sideBadge = document.getElementById('sidebarCartBadge');
+            if(sideBadge) {
+                sideBadge.textContent = totalItems;
+                if(totalItems > 0) {
+                    sideBadge.classList.remove('hidden');
+                    sideBadge.classList.add('flex');
+                } else {
+                    sideBadge.classList.add('hidden');
+                    sideBadge.classList.remove('flex');
+                }
+            }
+
+            // Update tombol keranjang mengambang di pojok kanan bawah
+            const floatBadge = document.getElementById('floatingCartBadge');
+            const floatText = document.getElementById('floatingCartText');
+            const floatBtn = document.getElementById('floatingCartBtn');
+            if (floatBadge && floatText && floatBtn) {
+                floatBadge.textContent = totalItems;
+                floatText.textContent = `${totalItems} Unit Dipilih`;
+                if (totalItems > 0) {
+                    floatBadge.classList.remove('hidden');
+                    floatBadge.classList.add('flex');
+                    floatBtn.classList.add('ring-4', 'ring-blue-400/40');
+                } else {
+                    floatBadge.classList.add('hidden');
+                    floatBadge.classList.remove('flex');
+                    floatBtn.classList.remove('ring-4', 'ring-blue-400/40');
+                }
+            }
+
+            filterKatalog(); // update label quantity on cards
+        }
+
+        function addToCart(id) {
+            const alat = dataAlatLab.find(a => a.ID_Alat === id);
+            if(!alat) return;
+
+            // Cek kondisi rusak
+            if (alat.Kondisi === 'Rusak') {
+                showToast('Barang dalam kondisi rusak dan tidak dapat dipinjam.', 'error');
+                return;
+            }
+
+            const maxStok = getMaxStokAlat(id);
+            const cartIndex = cart.findIndex(c => c.id === id);
+            
+            // Berikan info toast jika barang saat ini stoknya 0 bahwa tetap bisa di-booking untuk tanggal berbeda
+            if ((parseInt(alat.Stok_Tersedia) || 0) <= 0 && cartIndex === -1) {
+                showToast(`Stok "${alat.Nama_Alat}" saat ini 0 (Dipinjam). Berhasil ditambahkan untuk Booking di tanggal/jam lain!`, 'info');
+            }
+
+            if (cartIndex !== -1) {
+                if (cart[cartIndex].qty < maxStok) {
+                    cart[cartIndex].qty += 1;
+                    showToast(`Jumlah ${alat.Nama_Alat} ditambah (${cart[cartIndex].qty} unit).`, 'success');
+                } else {
+                    showToast(`Batas maksimal unit untuk ${alat.Nama_Alat} adalah ${maxStok} unit.`, 'error');
+                }
+            } else {
+                cart.push({
+                    id: id,
+                    nama: alat.Nama_Alat,
+                    kategori: alat.Kategori,
+                    maxQty: maxStok,
+                    qty: 1
+                });
+                if ((parseInt(alat.Stok_Tersedia) || 0) > 0) {
+                    showToast(`${alat.Nama_Alat} ditambahkan ke daftar pinjaman.`, 'success');
+                }
+            }
+            updateCartBadge();
+        }
+
+        function openCartModal() {
+            closeMobileSidebar();
+            if(cart.length === 0) {
+                showToast("Daftar pinjaman masih kosong. Silakan pilih alat/ruangan terlebih dahulu.", 'info');
+                return;
+            }
+            
+            renderCartItems();
+            document.getElementById('formCartCount').textContent = cart.reduce((s,i) => s + i.qty, 0);
+            
+            // Set auto data
+            document.getElementById('inputNomorPeminjam').value = 'PMJ-' + Math.floor(Math.random() * 10000).toString().padStart(4, '0');
+            const today = new Date().toISOString().split('T')[0];
+            document.getElementById('inputTanggal').value = today;
+            document.getElementById('inputTanggalKembali').value = today;
+            
+            // FIX: Gunakan format jam HH:mm yang valid untuk input type="time"
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const timeString = `${hours}:${minutes}`;
+            
+            document.getElementById('inputJamPinjam').value = timeString;
+            document.getElementById('inputJamKembali').value = timeString;
+
+            // Reset checklist saat membuka modal
+            if (document.getElementById('checkH3')) document.getElementById('checkH3').checked = false;
+            if (document.getElementById('checkSyarat')) document.getElementById('checkSyarat').checked = false;
+
+            document.getElementById('cartModal').classList.remove('hidden');
+            document.getElementById('cartModal').classList.add('flex');
+        }
+
+        function closeCartModal() {
+            document.getElementById('cartModal').classList.add('hidden');
+            document.getElementById('cartModal').classList.remove('flex');
+        }
+
+        function renderCartItems() {
+            const container = document.getElementById('cartItemsContainer');
+            container.innerHTML = '';
+            
+            cart.forEach((item, index) => {
+                const isRuangan = item.kategori === 'Fasilitas Ruangan';
+                const qtyControl = isRuangan ? `<span class="text-sm font-bold w-6 text-center">1</span>` : `
+                    <button onclick="updateCartQty(${index}, -1)" class="w-6 h-6 flex items-center justify-center bg-gray-200 dark:bg-slate-600 rounded-full hover:bg-gray-300 transition-colors">-</button>
+                    <span class="text-sm font-bold w-6 text-center dark:text-white">${item.qty}</span>
+                    <button onclick="updateCartQty(${index}, 1)" class="w-6 h-6 flex items-center justify-center bg-gray-200 dark:bg-slate-600 rounded-full hover:bg-gray-300 transition-colors">+</button>
+                `;
+
+                const html = `
+                    <div class="flex items-center justify-between p-3 bg-white dark:bg-slate-700 border border-gray-100 dark:border-slate-600 rounded-xl shadow-sm">
+                        <div class="flex-1 pr-4">
+                            <p class="text-[10px] font-bold text-blue-500 uppercase">${item.kategori}</p>
+                            <p class="text-xs font-bold text-gray-800 dark:text-white line-clamp-1">${item.nama}</p>
+                        </div>
+                        <div class="flex items-center gap-3">
+                            <div class="flex items-center gap-1">
+                                ${qtyControl}
+                            </div>
+                            <button onclick="removeFromCart(${index})" class="text-red-400 hover:text-red-600 p-1" title="Hapus">
+                                <i class="fas fa-trash-alt text-xs"></i>
+                            </button>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', html);
+            });
+        }
+
+        function updateCartQty(index, delta) {
+            const item = cart[index];
+            if (!item) return;
+            const maxStok = getMaxStokAlat(item.id);
+            const newQty = item.qty + delta;
+
+            if (newQty <= 0) {
+                removeFromCart(index);
+                return;
+            }
+            if (newQty > maxStok) {
+                showToast(`Maksimal unit untuk ${item.nama} adalah ${maxStok} unit.`, 'error');
+                return;
+            }
+            item.qty = newQty;
+            renderCartItems();
+            document.getElementById('formCartCount').textContent = cart.reduce((s, i) => s + i.qty, 0);
+            updateCartBadge();
+        }
+
+        function removeFromCart(index) {
+            cart.splice(index, 1);
+            updateCartBadge();
+            if (cart.length === 0) {
+                closeCartModal();
+                showToast('Daftar pinjaman dikosongkan.', 'info');
+            } else {
+                renderCartItems();
+                document.getElementById('formCartCount').textContent = cart.reduce((s, i) => s + i.qty, 0);
+            }
+        }
+
+        function showToast(message, type = 'info') {
+            let toastContainer = document.getElementById('toastContainer');
+            if (!toastContainer) {
+                toastContainer = document.createElement('div');
+                toastContainer.id = 'toastContainer';
+                toastContainer.className = 'fixed bottom-24 right-4 z-[200] flex flex-col gap-2 max-w-xs w-full pointer-events-none';
+                document.body.appendChild(toastContainer);
+            }
+
+            const colors = {
+                success: 'bg-green-600 text-white',
+                error: 'bg-red-600 text-white',
+                info: 'bg-slate-800 text-white dark:bg-slate-700'
+            };
+            const icons = {
+                success: 'fa-check-circle',
+                error: 'fa-exclamation-circle',
+                info: 'fa-info-circle'
+            };
+
+            const toast = document.createElement('div');
+            toast.className = `${colors[type] || colors.info} px-4 py-3 rounded-xl shadow-xl flex items-center gap-3 text-xs font-semibold pointer-events-auto transition-all duration-300`;
+            toast.innerHTML = `<i class="fas ${icons[type] || icons.info} text-base shrink-0"></i><span class="leading-snug">${message}</span>`;
+
+            toastContainer.appendChild(toast);
+            setTimeout(() => {
+                toast.classList.add('opacity-0', 'translate-y-2');
+                setTimeout(() => toast.remove(), 300);
+            }, 3200);
+        }
+
+        // ======= HELPER PARSING WAKTU AKURAT & FORMAT RAMAH PENGGUNA =======
+        function normalizeDateStr(dateVal) {
+            if (!dateVal) return '';
+            const str = String(dateVal).trim();
+            // Jika sudah format YYYY-MM-DD murni
+            if (/^\d{4}-\d{2}-\d{2}$/.test(str)) return str;
+            // Jika format ISO dari Google Sheets (contoh: 2026-11-01T17:00:00.000Z)
+            const d = new Date(str);
+            if (!isNaN(d.getTime())) {
+                const year = d.getFullYear();
+                const month = String(d.getMonth() + 1).padStart(2, '0');
+                const day = String(d.getDate()).padStart(2, '0');
+                return `${year}-${month}-${day}`;
+            }
+            return str.split('T')[0];
+        }
+
+        function normalizeTimeStr(timeVal, defaultTime = '00:00') {
+            if (!timeVal) return defaultTime;
+            const str = String(timeVal).trim();
+            // Jika sudah format HH:mm atau HH.mm
+            const simpleMatch = str.match(/^(\d{1,2})[:.](\d{2})/);
+            if (simpleMatch && !str.includes('T')) {
+                return `${simpleMatch[1].padStart(2, '0')}:${simpleMatch[2]}`;
+            }
+            // Jika format ISO 1899-12-29T... dari Google Sheets
+            const d = new Date(str);
+            if (!isNaN(d.getTime())) {
+                const hours = String(d.getHours()).padStart(2, '0');
+                const minutes = String(d.getMinutes()).padStart(2, '0');
+                return `${hours}:${minutes}`;
+            }
+            return defaultTime;
+        }
+
+        function formatTanggalIndo(dateVal) {
+            const clean = normalizeDateStr(dateVal);
+            if (!clean) return '-';
+            const parts = clean.split('-');
+            if (parts.length !== 3) return clean;
+            const namaBulan = ['Jan', 'Feb', 'Mar', 'Apr', 'Mei', 'Jun', 'Jul', 'Agu', 'Sep', 'Okt', 'Nov', 'Des'];
+            const y = parts[0];
+            const m = parseInt(parts[1], 10) - 1;
+            const d = parseInt(parts[2], 10);
+            if (m >= 0 && m < 12) {
+                return `${d} ${namaBulan[m]} ${y}`;
+            }
+            return clean;
+        }
+
+        function formatRentangJadwal(tglPinjam, jamPinjam, tglKembali, jamKembali) {
+            const t1 = formatTanggalIndo(tglPinjam);
+            const j1 = normalizeTimeStr(jamPinjam, '00:00');
+            const t2 = formatTanggalIndo(tglKembali);
+            const j2 = normalizeTimeStr(jamKembali, '23:59');
+
+            if (t1 === t2) {
+                return `${t1} (${j1} - ${j2} WIB)`;
+            }
+            return `${t1} (${j1}) s/d ${t2} (${j2})`;
+        }
+
+        function parseDateTimeMs(dateStr, timeStr, isEnd = false) {
+            const cleanDate = normalizeDateStr(dateStr);
+            if (!cleanDate) return 0;
+            const parts = cleanDate.split('-');
+            if (parts.length !== 3) return 0;
+            
+            const year = parseInt(parts[0], 10);
+            const month = parseInt(parts[1], 10) - 1;
+            const day = parseInt(parts[2], 10);
+            
+            const cleanTime = normalizeTimeStr(timeStr, isEnd ? '23:59' : '00:00');
+            const tParts = cleanTime.split(':');
+            const hours = parseInt(tParts[0], 10) || 0;
+            const minutes = parseInt(tParts[1], 10) || 0;
+
+            return new Date(year, month, day, hours, minutes, 0, 0).getTime();
+        }
+
+        // ======= JADWAL PEMINJAMAN =======
+        
+        function openJadwalModal(idAlat) {
+            const alat = dataAlatLab.find(a => a.ID_Alat === idAlat);
+            if(!alat) return;
+
+            document.getElementById('jadwalItemName').textContent = `${alat.Nama_Alat} (Total Unit Lab: ${getMaxStokAlat(idAlat)})`;
+            const container = document.getElementById('jadwalListContainer');
+            container.innerHTML = '';
+
+            // Filter peminjaman yang memuat alat ini dan belum dikembalikan
+            const jadwalAktif = dataPeminjaman.filter(pj => {
+                if (pj.status !== 'Sedang Dipinjam' && pj.status !== 'Menunggu Konfirmasi') return false;
+                if (!Array.isArray(pj.items)) return false;
+                return pj.items.some(it => it.id === idAlat);
+            });
+
+            if (jadwalAktif.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center py-10 text-gray-400 dark:text-gray-500">
+                        <i class="fas fa-calendar-check text-4xl mb-3 text-green-500 opacity-80"></i>
+                        <p class="text-xs font-semibold text-gray-600 dark:text-gray-300">Belum ada jadwal booking aktif.</p>
+                        <p class="text-[11px] mt-1">Alat/Ruangan ini bebas dipinjam pada tanggal berapa pun.</p>
+                    </div>
+                `;
+            } else {
+                const listEl = document.createElement('div');
+                listEl.className = 'space-y-3';
+
+                jadwalAktif.forEach(pj => {
+                    const itemPinjam = pj.items.find(it => it.id === idAlat);
+                    const qtyPinjam = itemPinjam ? itemPinjam.qty : 1;
+                    const isAcc = pj.status === 'Sedang Dipinjam';
+                    
+                    const badgeStatus = isAcc 
+                        ? '<span class="bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fas fa-lock mr-1"></i>Sudah Di-ACC (Terkunci)</span>'
+                        : '<span class="bg-amber-100 text-amber-700 dark:bg-amber-900/40 dark:text-amber-300 text-[10px] font-bold px-2 py-0.5 rounded-full"><i class="fas fa-clock mr-1"></i>Menunggu ACC</span>';
+
+                    const teksJadwalRapih = formatRentangJadwal(pj.tanggalPinjam, pj.jamPinjam, pj.tanggalKembali, pj.jamKembali);
+
+                    const card = `
+                        <div class="p-3 rounded-xl border ${isAcc ? 'border-green-200 bg-green-50/30 dark:border-green-800/50 dark:bg-green-900/10' : 'border-gray-200 bg-gray-50 dark:border-slate-700 dark:bg-slate-700/30'} text-xs space-y-1.5">
+                            <div class="flex justify-between items-center">
+                                <span class="font-bold text-gray-800 dark:text-white"><i class="fas fa-user-circle mr-1 text-blue-500"></i> ${pj.nama}</span>
+                                ${badgeStatus}
+                            </div>
+                            <div class="text-[11px] text-gray-600 dark:text-gray-300 flex items-center justify-between">
+                                <span>Unit Dipinjam: <strong>${qtyPinjam} Unit</strong></span>
+                                <span class="text-gray-400">${pj.prodi || '-'}</span>
+                            </div>
+                            <div class="pt-1 border-t border-gray-200/60 dark:border-slate-600/60 text-[11px] font-semibold text-blue-600 dark:text-blue-400">
+                                <i class="far fa-calendar-alt mr-1"></i> ${teksJadwalRapih}
+                            </div>
+                        </div>
+                    `;
+                    listEl.insertAdjacentHTML('beforeend', card);
+                });
+                container.appendChild(listEl);
+            }
+
+            document.getElementById('jadwalModal').classList.remove('hidden');
+            document.getElementById('jadwalModal').classList.add('flex');
+        }
+
+        function closeJadwalModal() {
+            document.getElementById('jadwalModal').classList.add('hidden');
+            document.getElementById('jadwalModal').classList.remove('flex');
+        }
+
+        // ======= PROSES PENGAJUAN & VALIDASI JADWAL ANTI-BENTROK =======
+
+        function reviewPeminjaman() {
+            if (cart.length === 0) {
+                showToast('Daftar pinjaman masih kosong!', 'error');
+                return;
+            }
+
+            const nomor = document.getElementById('inputNomorPeminjam').value.trim();
+            const nama = document.getElementById('inputNama').value.trim();
+            const nim = document.getElementById('inputNim').value.trim();
+            const wa = document.getElementById('inputWa').value.trim();
+            const prodi = document.getElementById('inputProdi').value.trim();
+            const dosen = document.getElementById('inputDosen').value.trim();
+            const tglPinjam = document.getElementById('inputTanggal').value;
+            const jamPinjam = document.getElementById('inputJamPinjam').value;
+            const tglKembali = document.getElementById('inputTanggalKembali').value;
+            const jamKembali = document.getElementById('inputJamKembali').value;
+            const keperluan = document.getElementById('inputKeperluan').value.trim();
+
+            if (!nama || !nim || !wa || !prodi || !dosen || !tglPinjam || !jamPinjam || !tglKembali || !jamKembali || !keperluan) {
+                showToast('Harap lengkapi seluruh kolom formulir!', 'error');
+                return;
+            }
+
+            const checkH3 = document.getElementById('checkH3')?.checked;
+            const checkSyarat = document.getElementById('checkSyarat')?.checked;
+
+            if (!checkH3 || !checkSyarat) {
+                showToast('Harap centang checklist peminjaman H-3 hari & persetujuan syarat peminjaman!', 'error');
+                return;
+            }
+
+            const reqStart = parseDateTimeMs(tglPinjam, jamPinjam, false);
+            let reqEnd = parseDateTimeMs(tglKembali, jamKembali, true);
+
+            if (reqEnd < reqStart) {
+                showToast('Waktu kembali tidak boleh lebih awal dari waktu pinjam!', 'error');
+                return;
+            }
+            // Jika user memasukkan jam mulai dan jam selesai yang persis sama di tanggal yang sama, beri durasi minimal 1 menit agar terdeteksi irisan waktunya
+            if (reqEnd === reqStart) {
+                reqEnd = reqStart + 60000;
+            }
+
+            // VALIDASI ANTI DOUBLE-BOOKING (HANYA UNTUK JADWAL YANG SUDAH DI-ACC / 'Sedang Dipinjam')
+            let clashMessages = [];
+
+            cart.forEach(cartItem => {
+                const maxUnitLab = getMaxStokAlat(cartItem.id);
+                let unitTerpakaiDiJamSama = 0;
+                let peminjamBentrok = [];
+
+                dataPeminjaman.forEach(pj => {
+                    // Hanya jadwal yang sudah di-ACC petugas ('Sedang Dipinjam') yang mengunci slot jadwal
+                    if (pj.status !== 'Sedang Dipinjam') return;
+                    if (!Array.isArray(pj.items)) return;
+
+                    const matchedItem = pj.items.find(it => it.id === cartItem.id);
+                    if (!matchedItem) return;
+
+                    const existStart = parseDateTimeMs(pj.tanggalPinjam, pj.jamPinjam || '00:00', false);
+                    let existEnd = parseDateTimeMs(pj.tanggalKembali, pj.jamKembali || '23:59', true);
+                    if (existEnd === existStart) existEnd = existStart + 60000;
+
+                    // Cek apakah rentang waktu saling beririsan (inklusif jika jam sama persis)
+                    const isOverlapping = (reqStart <= existEnd) && (reqEnd >= existStart);
+                    if (isOverlapping) {
+                        unitTerpakaiDiJamSama += (parseInt(matchedItem.qty, 10) || 1);
+                        peminjamBentrok.push(`${pj.nama} [${formatRentangJadwal(pj.tanggalPinjam, pj.jamPinjam, pj.tanggalKembali, pj.jamKembali)}]`);
+                    }
+                });
+
+                const sisaTersediaSaatItu = Math.max(0, maxUnitLab - unitTerpakaiDiJamSama);
+                if (cartItem.qty > sisaTersediaSaatItu) {
+                    clashMessages.push(
+                        `• ${cartItem.nama}\n  Diminta: ${cartItem.qty} unit | Tersedia di jam tersebut: ${sisaTersediaSaatItu} unit\n  Sudah di-ACC untuk: ${peminjamBentrok.join(', ')}`
+                    );
+                }
+            });
+
+            if (clashMessages.length > 0) {
+                document.getElementById('clashDetails').textContent = clashMessages.join('\n\n');
+                document.getElementById('clashModal').classList.remove('hidden');
+                document.getElementById('clashModal').classList.add('flex');
+                return;
+            }
+
+            // Simpan draft dan tampilkan modal konfirmasi
+            pendingLoanDraft = {
+                id: nomor,
+                nama: nama,
+                nim: nim,
+                wa: wa,
+                prodi: prodi,
+                dosen: dosen,
+                tanggalPinjam: tglPinjam,
+                jamPinjam: jamPinjam,
+                tanggalKembali: tglKembali,
+                jamKembali: jamKembali,
+                keperluan: keperluan,
+                items: JSON.parse(JSON.stringify(cart)),
+                status: 'Menunggu Konfirmasi',
+                waktuPengajuan: new Date().toISOString()
+            };
+
+            document.getElementById('confNamaPeminjam').textContent = `${nama} (${nomor})`;
+            document.getElementById('confNimProdi').textContent = `${nim} / ${prodi}`;
+            document.getElementById('confWa').textContent = wa;
+            document.getElementById('confDosen').textContent = dosen;
+            document.getElementById('confTanggal').textContent = formatRentangJadwal(tglPinjam, jamPinjam, tglKembali, jamKembali);
+
+            const confItemsEl = document.getElementById('confItems');
+            confItemsEl.innerHTML = '';
+            pendingLoanDraft.items.forEach(it => {
+                confItemsEl.insertAdjacentHTML('beforeend', `<li>${it.nama} (${it.qty} unit)</li>`);
+            });
+
+            document.getElementById('checkSetujuPinjam').checked = false;
+            document.getElementById('konfirmasiModal').classList.remove('hidden');
+            document.getElementById('konfirmasiModal').classList.add('flex');
+        }
+
+        function submitPeminjaman() {
+            if (!pendingLoanDraft) return;
+            const setuju = document.getElementById('checkSetujuPinjam').checked;
+            if (!setuju) {
+                showToast('Harap centang persetujuan tanggung jawab & konfirmasi WA terlebih dahulu!', 'error');
+                return;
+            }
+
+            // Masukkan ke daftar peminjaman dengan status 'Menunggu Konfirmasi'
+            // Stok fisik aktual baru dikurangi ketika petugas meng-ACC peminjaman
+            dataPeminjaman.unshift(pendingLoanDraft);
+            saveDataLocally();
+            pushToCloud();
+
+            // Tampilkan bukti tiket
+            const receiptBox = document.getElementById('receiptDetailBox');
+            const itemListHtml = pendingLoanDraft.items.map(i => `<div class="flex justify-between"><span>- ${i.nama}</span><span class="font-bold">x${i.qty}</span></div>`).join('');
+            
+            receiptBox.innerHTML = `
+                <div class="flex justify-between border-b border-gray-200 pb-1">
+                    <span class="text-gray-500 text-xs">No. Tiket:</span>
+                    <span class="font-mono font-bold text-xs">${pendingLoanDraft.id}</span>
+                </div>
+                <div class="flex justify-between border-b border-gray-200 pb-1">
+                    <span class="text-gray-500 text-xs">Nama / NIM:</span>
+                    <span class="font-bold text-xs">${pendingLoanDraft.nama} (${pendingLoanDraft.nim})</span>
+                </div>
+                <div class="flex justify-between border-b border-gray-200 pb-1">
+                    <span class="text-gray-500 text-xs">Pinjam:</span>
+                    <span class="font-semibold text-xs">${formatTanggalIndo(pendingLoanDraft.tanggalPinjam)}, ${normalizeTimeStr(pendingLoanDraft.jamPinjam)} WIB</span>
+                </div>
+                <div class="flex justify-between border-b border-gray-200 pb-1">
+                    <span class="text-gray-500 text-xs">Kembali:</span>
+                    <span class="font-semibold text-xs">${formatTanggalIndo(pendingLoanDraft.tanggalKembali)}, ${normalizeTimeStr(pendingLoanDraft.jamKembali)} WIB</span>
+                </div>
+                <div class="pt-1 text-xs">
+                    <span class="text-gray-500 block mb-1">Daftar Pinjaman:</span>
+                    ${itemListHtml}
+                </div>
+            `;
+
+            document.getElementById('konfirmasiModal').classList.add('hidden');
+            document.getElementById('konfirmasiModal').classList.remove('flex');
+            closeCartModal();
+
+            document.getElementById('buktiPinjamModal').classList.remove('hidden');
+            document.getElementById('buktiPinjamModal').classList.add('flex');
+
+            // Reset keranjang dan form
+            cart = [];
+            pendingLoanDraft = null;
+            updateCartBadge();
+            document.getElementById('inputNama').value = '';
+            document.getElementById('inputNim').value = '';
+            document.getElementById('inputWa').value = '';
+            document.getElementById('inputProdi').value = '';
+            document.getElementById('inputDosen').value = '';
+            document.getElementById('inputKeperluan').value = '';
+            if (document.getElementById('checkH3')) document.getElementById('checkH3').checked = false;
+            if (document.getElementById('checkSyarat')) document.getElementById('checkSyarat').checked = false;
+            showToast('Pengajuan peminjaman berhasil dikirim!', 'success');
+        }
+
+        function tutupBuktiDanReset() {
+            document.getElementById('buktiPinjamModal').classList.add('hidden');
+            document.getElementById('buktiPinjamModal').classList.remove('flex');
+            filterKatalog();
+        }
+
+        // ======= LOGIN & PANEL PETUGAS =======
+
+        function openLoginModal() {
+            closeMobileSidebar();
+            document.getElementById('inputPassword').value = '';
+            document.getElementById('loginError').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('hidden');
+            document.getElementById('loginModal').classList.add('flex');
+        }
+
+        function closeLoginModal() {
+            document.getElementById('loginModal').classList.add('hidden');
+            document.getElementById('loginModal').classList.remove('flex');
+        }
+
+        function togglePasswordVisibility(inputId, iconEl) {
+            const input = document.getElementById(inputId);
+            if (input.type === 'password') {
+                input.type = 'text';
+                iconEl.classList.remove('fa-eye');
+                iconEl.classList.add('fa-eye-slash');
+            } else {
+                input.type = 'password';
+                iconEl.classList.remove('fa-eye-slash');
+                iconEl.classList.add('fa-eye');
+            }
+        }
+
+        function verifyLogin() {
+            const pass = document.getElementById('inputPassword').value;
+            if (pass === 'labfikomm2025') {
+                closeLoginModal();
+                document.getElementById('petugasMenuContainer').classList.remove('hidden');
+                document.getElementById('btn-login-petugas').classList.add('hidden');
+                document.getElementById('btn-logout-petugas').classList.remove('hidden');
+                openPetugasPanel();
+                showToast('Berhasil masuk ke Mode Petugas', 'success');
+            } else {
+                document.getElementById('loginError').classList.remove('hidden');
+            }
+        }
+
+        function logoutPetugas() {
+            document.getElementById('petugasMenuContainer').classList.add('hidden');
+            document.getElementById('btn-login-petugas').classList.remove('hidden');
+            document.getElementById('btn-logout-petugas').classList.add('hidden');
+            closePetugasPanel();
+            showToast('Keluar dari Mode Petugas', 'info');
+        }
+
+        function openPetugasPanel() {
+            closeMobileSidebar();
+            renderAdminPeminjaman();
+            renderAdminStok();
+            prepareTambahAlatForm();
+            document.getElementById('petugasPanelModal').classList.remove('hidden');
+            document.getElementById('petugasPanelModal').classList.add('flex');
+        }
+
+        function closePetugasPanel() {
+            document.getElementById('petugasPanelModal').classList.add('hidden');
+            document.getElementById('petugasPanelModal').classList.remove('flex');
+            filterKatalog();
+        }
+
+        function switchAdminTab(tabId) {
+            document.querySelectorAll('.admin-tab-content').forEach(el => el.classList.add('hidden'));
+            document.getElementById(tabId).classList.remove('hidden');
+
+            document.querySelectorAll('.admin-tab').forEach(btn => {
+                btn.classList.remove('text-blue-600', 'border-blue-600', 'font-bold');
+                btn.classList.add('text-gray-500', 'border-transparent', 'font-medium');
+            });
+
+            const activeBtn = document.getElementById('btn-' + tabId);
+            if (activeBtn) {
+                activeBtn.classList.add('text-blue-600', 'border-blue-600', 'font-bold');
+                activeBtn.classList.remove('text-gray-500', 'border-transparent', 'font-medium');
+            }
+
+            if (tabId === 'tab-peminjaman') renderAdminPeminjaman();
+            if (tabId === 'tab-stok') renderAdminStok();
+            if (tabId === 'tab-tambah') prepareTambahAlatForm();
+        }
+
+        function renderAdminPeminjaman() {
+            const tbody = document.getElementById('tablePeminjamanBody');
+            tbody.innerHTML = '';
+
+            let countMenunggu = 0;
+            let countDipinjam = 0;
+            let countSelesai = 0;
+
+            dataPeminjaman.forEach((pj, idx) => {
+                if (pj.status === 'Menunggu Konfirmasi') countMenunggu++;
+                else if (pj.status === 'Sedang Dipinjam') countDipinjam++;
+                else if (pj.status === 'Dikembalikan') countSelesai++;
+
+                let statusBadge = '';
+                if (pj.status === 'Menunggu Konfirmasi') {
+                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-orange-100 text-orange-700 dark:bg-orange-900/40 dark:text-orange-300">Menunggu ACC</span>';
+                } else if (pj.status === 'Sedang Dipinjam') {
+                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-blue-100 text-blue-700 dark:bg-blue-900/40 dark:text-blue-300">Sudah Di-ACC (Dipinjam)</span>';
+                } else if (pj.status === 'Dikembalikan') {
+                    statusBadge = '<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300">Selesai / Kembali</span>';
+                } else {
+                    statusBadge = `<span class="px-2.5 py-1 rounded-full text-[10px] font-bold bg-red-100 text-red-700">${pj.status}</span>`;
+                }
+
+                const itemsHtml = Array.isArray(pj.items) 
+                    ? pj.items.map(it => {
+                        const badgeKondisiKembali = it.kondisiKembali 
+                            ? `<span class="ml-1 px-1.5 py-0.5 text-[10px] rounded font-semibold ${it.kondisiKembali === 'Baik' ? 'bg-green-100 text-green-700 dark:bg-green-900/40 dark:text-green-300' : (it.kondisiKembali === 'Kurang Baik' ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900/40 dark:text-yellow-300' : 'bg-red-100 text-red-700 dark:bg-red-900/40 dark:text-red-300')}">Kondisi: ${it.kondisiKembali}</span>`
+                            : '';
+                        return `<div class="text-xs">• ${it.nama} <strong>(x${it.qty})</strong> ${badgeKondisiKembali}</div>`;
+                    }).join('')
+                    : '-';
+
+                const infoPengembalianHtml = pj.status === 'Dikembalikan' && (pj.catatanKembali || pj.kondisiKembali)
+                    ? `<div class="mt-2 p-2 rounded-lg bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800/50 text-[11px]">
+                        <div class="font-bold text-green-800 dark:text-green-300"><i class="fas fa-clipboard-check mr-1"></i> Laporan Pengembalian:</div>
+                        ${pj.kondisiKembali ? `<div class="text-gray-700 dark:text-gray-300">Ringkasan Kondisi: <strong>${pj.kondisiKembali}</strong></div>` : ''}
+                        <div class="text-gray-600 dark:text-gray-400 italic">"${pj.catatanKembali || '-'}"</div>
+                       </div>`
+                    : '';
+
+                let actionBtns = '';
+                if (pj.status === 'Menunggu Konfirmasi') {
+                    actionBtns = `
+                        <button onclick="accPeminjaman(${idx})" class="px-3 py-1.5 bg-blue-600 hover:bg-blue-700 text-white rounded-lg text-xs font-bold mr-1 transition-colors">
+                            <i class="fas fa-check mr-1"></i> ACC Pinjam
+                        </button>
+                        <button onclick="tolakPeminjaman(${idx})" class="px-3 py-1.5 bg-red-100 hover:bg-red-200 text-red-600 rounded-lg text-xs font-bold transition-colors">
+                            Tolak
+                        </button>
+                    `;
+                } else if (pj.status === 'Sedang Dipinjam') {
+                    actionBtns = `
+                        <button onclick="selesaikanPeminjaman(${idx})" class="px-3 py-1.5 bg-green-600 hover:bg-green-700 text-white rounded-lg text-xs font-bold transition-colors">
+                            <i class="fas fa-undo mr-1"></i> Tandai Kembali
+                        </button>
+                    `;
+                } else {
+                    actionBtns = `
+                        <button onclick="hapusRiwayatPeminjaman(${idx})" class="text-gray-400 hover:text-red-500 p-1" title="Hapus Riwayat">
+                            <i class="fas fa-trash"></i>
+                        </button>
+                    `;
+                }
+
+                const tr = `
+                    <tr class="hover:bg-gray-50/50 dark:hover:bg-slate-700/30 transition-colors">
+                        <td class="py-3 px-4 align-top">
+                            <div class="font-mono text-xs font-bold text-gray-500 mb-1">${pj.id}</div>
+                            <div class="text-xs font-semibold text-gray-800 dark:text-gray-200">${formatTanggalIndo(pj.tanggalPinjam)} (${normalizeTimeStr(pj.jamPinjam, '00:00')})</div>
+                            <div class="text-[11px] text-gray-500 mb-2">s/d ${formatTanggalIndo(pj.tanggalKembali)} (${normalizeTimeStr(pj.jamKembali, '23:59')})</div>
+                            ${statusBadge}
+                        </td>
+                        <td class="py-3 px-4 align-top">
+                            <div class="font-bold text-gray-800 dark:text-white">${pj.nama}</div>
+                            <div class="text-xs text-gray-500">NIM: ${pj.nim || '-'} | ${pj.prodi || '-'}</div>
+                            <div class="text-xs text-blue-600 dark:text-blue-400 mt-0.5"><i class="fab fa-whatsapp"></i> ${pj.wa || '-'}</div>
+                            <div class="text-[11px] text-gray-400 mt-1">Dosen: ${pj.dosen || '-'}</div>
+                            <div class="text-[11px] text-gray-500 italic">Keperluan: "${pj.keperluan || '-'}"</div>
+                        </td>
+                        <td class="py-3 px-4 align-top text-gray-700 dark:text-gray-300 space-y-1">
+                            ${itemsHtml}
+                            ${infoPengembalianHtml}
+                        </td>
+                        <td class="py-3 px-4 align-top text-right whitespace-nowrap">
+                            ${actionBtns}
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', tr);
+            });
+
+            document.getElementById('stat-menunggu').textContent = countMenunggu;
+            document.getElementById('stat-dipinjam').textContent = countDipinjam;
+            document.getElementById('stat-selesai').textContent = countSelesai;
+        }
+
+        function accPeminjaman(idx) {
+            const pj = dataPeminjaman[idx];
+            if (!pj) return;
+
+            // Cek apakah ada jadwal lain yang SUDAH DI-ACC pada jam yang sama hingga stok tidak cukup
+            const reqStart = parseDateTimeMs(pj.tanggalPinjam, pj.jamPinjam || '00:00', false);
+            let reqEnd = parseDateTimeMs(pj.tanggalKembali, pj.jamKembali || '23:59', true);
+            if (reqEnd === reqStart) reqEnd = reqStart + 60000;
+
+            for (const item of (pj.items || [])) {
+                const maxUnitLab = getMaxStokAlat(item.id);
+                let usedAtSameTime = 0;
+
+                dataPeminjaman.forEach((other, oIdx) => {
+                    if (oIdx === idx || other.status !== 'Sedang Dipinjam') return;
+                    const match = (other.items || []).find(i => i.id === item.id);
+                    if (!match) return;
+
+                    const eStart = parseDateTimeMs(other.tanggalPinjam, other.jamPinjam || '00:00', false);
+                    let eEnd = parseDateTimeMs(other.tanggalKembali, other.jamKembali || '23:59', true);
+                    if (eEnd === eStart) eEnd = eStart + 60000;
+
+                    if (reqStart <= eEnd && reqEnd >= eStart) {
+                        usedAtSameTime += (parseInt(match.qty, 10) || 1);
+                    }
+                });
+
+                if (usedAtSameTime + item.qty > maxUnitLab) {
+                    showToast(`Gagal ACC: Jadwal bentrok untuk ${item.nama} pada jam tersebut!`, 'error');
+                    return;
+                }
+            }
+
+            // Kurangi stok yang tampil saat ini
+            (pj.items || []).forEach(it => {
+                const alat = dataAlatLab.find(a => a.ID_Alat === it.id);
+                if (alat) {
+                    alat.Stok_Tersedia = Math.max(0, (parseInt(alat.Stok_Tersedia, 10) || 0) - it.qty);
+                }
+            });
+
+            pj.status = 'Sedang Dipinjam';
+            saveDataLocally();
+            pushToCloud();
+            renderAdminPeminjaman();
+            renderAdminStok();
+            showToast(`Peminjaman ${pj.nama} berhasil di-ACC! Jadwal kini dikunci.`, 'success');
+        }
+
+        function tolakPeminjaman(idx) {
+            const pj = dataPeminjaman[idx];
+            if (!pj) return;
+            pj.status = 'Ditolak';
+            saveDataLocally();
+            pushToCloud();
+            renderAdminPeminjaman();
+            showToast(`Pengajuan ${pj.nama} telah ditolak.`, 'info');
+        }
+
+        function selesaikanPeminjaman(idx) {
+            const pj = dataPeminjaman[idx];
+            if (!pj) return;
+
+            currentReturnIdx = idx;
+            document.getElementById('returnBorrowerName').textContent = `${pj.nama} (${pj.id}) - NIM: ${pj.nim || '-'}`;
+            document.getElementById('returnCatatan').value = '';
+
+            const container = document.getElementById('returnItemsContainer');
+            container.innerHTML = '';
+
+            (pj.items || []).forEach((it, itemIdx) => {
+                const alat = dataAlatLab.find(a => a.ID_Alat === it.id);
+                const kondisiSaatIni = alat ? (alat.Kondisi || 'Baik') : 'Baik';
+
+                const row = `
+                    <div class="flex items-center justify-between p-3 bg-gray-50 dark:bg-slate-700/50 rounded-xl border border-gray-200 dark:border-slate-600">
+                        <div class="pr-3">
+                            <p class="text-xs font-bold text-gray-800 dark:text-white">${it.nama}</p>
+                            <p class="text-[11px] text-gray-500 dark:text-gray-400">Jumlah Kembali: <strong>${it.qty} Unit</strong></p>
+                        </div>
+                        <div class="shrink-0">
+                            <select id="returnKondisiItem_${itemIdx}" class="text-xs font-semibold border border-gray-300 dark:border-slate-600 dark:bg-slate-700 dark:text-white rounded-lg px-2.5 py-1.5 focus:outline-none focus:ring-2 focus:ring-green-500">
+                                <option value="Baik" ${kondisiSaatIni === 'Baik' ? 'selected' : ''}>Baik</option>
+                                <option value="Kurang Baik" ${kondisiSaatIni === 'Kurang Baik' ? 'selected' : ''}>Kurang Baik</option>
+                                <option value="Rusak" ${kondisiSaatIni === 'Rusak' ? 'selected' : ''}>Rusak</option>
+                            </select>
+                        </div>
+                    </div>
+                `;
+                container.insertAdjacentHTML('beforeend', row);
+            });
+
+            document.getElementById('returnModal').classList.remove('hidden');
+            document.getElementById('returnModal').classList.add('flex');
+        }
+
+        function closeReturnModal() {
+            currentReturnIdx = null;
+            document.getElementById('returnModal').classList.add('hidden');
+            document.getElementById('returnModal').classList.remove('flex');
+        }
+
+        function prosesKonfirmasiKembali() {
+            if (currentReturnIdx === null) return;
+            const pj = dataPeminjaman[currentReturnIdx];
+            if (!pj) return;
+
+            const catatan = document.getElementById('returnCatatan').value.trim();
+            if (!catatan) {
+                showToast('Harap isi deskripsi / catatan pengembalian barang!', 'error');
+                return;
+            }
+
+            let ringkasanKondisi = [];
+
+            (pj.items || []).forEach((it, itemIdx) => {
+                const selectEl = document.getElementById(`returnKondisiItem_${itemIdx}`);
+                const kondisiDipilih = selectEl ? selectEl.value : 'Baik';
+                it.kondisiKembali = kondisiDipilih;
+                ringkasanKondisi.push(`${it.nama} (${kondisiDipilih})`);
+
+                const alat = dataAlatLab.find(a => a.ID_Alat === it.id);
+                if (alat) {
+                    alat.Stok_Tersedia = (parseInt(alat.Stok_Tersedia, 10) || 0) + parseInt(it.qty, 10);
+                    alat.Kondisi = kondisiDipilih;
+                }
+            });
+
+            pj.status = 'Dikembalikan';
+            pj.kondisiKembali = ringkasanKondisi.join(', ');
+            pj.catatanKembali = catatan;
+            pj.waktuKembaliAktual = new Date().toISOString();
+
+            saveDataLocally();
+            pushToCloud();
+            closeReturnModal();
+            renderAdminPeminjaman();
+            renderAdminStok();
+            showToast(`Pengembalian ${pj.nama} berhasil dikonfirmasi & kondisi diperbarui!`, 'success');
+        }
+
+        function hapusRiwayatPeminjaman(idx) {
+            dataPeminjaman.splice(idx, 1);
+            saveDataLocally();
+            pushToCloud();
+            renderAdminPeminjaman();
+            showToast('Riwayat peminjaman dihapus.', 'info');
+        }
+
+        function renderAdminStok() {
+            const tbody = document.getElementById('tableStokBody');
+            if (!tbody) return;
+            tbody.innerHTML = '';
+
+            const keyword = (document.getElementById('searchAdminStok')?.value || '').toLowerCase();
+
+            dataAlatLab.forEach((alat, idx) => {
+                if (keyword && !alat.Nama_Alat.toLowerCase().includes(keyword) && !alat.ID_Alat.toLowerCase().includes(keyword)) {
+                    return;
+                }
+
+                const tr = `
+                    <tr class="hover:bg-gray-50/50 dark:hover:bg-slate-700/30">
+                        <td class="py-3 px-4 font-mono text-xs font-bold text-gray-500">${alat.ID_Alat}</td>
+                        <td class="py-3 px-4">
+                            <div class="font-bold text-gray-800 dark:text-white text-xs">${alat.Nama_Alat}</div>
+                            <div class="text-[10px] text-blue-500 uppercase font-semibold">${alat.Kategori}</div>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <div class="inline-flex items-center gap-2">
+                                <button onclick="ubahStokAdmin(${idx}, -1)" class="w-6 h-6 rounded bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 font-bold">-</button>
+                                <span class="font-bold text-sm w-8 text-center">${alat.Stok_Tersedia}</span>
+                                <button onclick="ubahStokAdmin(${idx}, 1)" class="w-6 h-6 rounded bg-gray-100 dark:bg-slate-700 hover:bg-gray-200 font-bold">+</button>
+                            </div>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <select onchange="ubahKondisiAdmin(${idx}, this.value)" class="text-xs border border-gray-300 dark:border-slate-600 dark:bg-slate-700 rounded-lg px-2 py-1">
+                                <option value="Baik" ${alat.Kondisi === 'Baik' ? 'selected' : ''}>Baik</option>
+                                <option value="Kurang Baik" ${alat.Kondisi === 'Kurang Baik' ? 'selected' : ''}>Kurang Baik</option>
+                                <option value="Rusak" ${alat.Kondisi === 'Rusak' ? 'selected' : ''}>Rusak</option>
+                            </select>
+                        </td>
+                        <td class="py-3 px-4 text-center">
+                            <button onclick="hapusAlatAdmin(${idx})" class="text-red-400 hover:text-red-600">
+                                <i class="fas fa-trash"></i>
+                            </button>
+                        </td>
+                    </tr>
+                `;
+                tbody.insertAdjacentHTML('beforeend', tr);
+            });
+        }
+
+        function ubahStokAdmin(idx, delta) {
+            const alat = dataAlatLab[idx];
+            if (!alat) return;
+            const baru = Math.max(0, (parseInt(alat.Stok_Tersedia, 10) || 0) + delta);
+            alat.Stok_Tersedia = baru;
+            saveDataLocally();
+            pushToCloud();
+            renderAdminStok();
+        }
+
+        function ubahKondisiAdmin(idx, kondisiBaru) {
+            const alat = dataAlatLab[idx];
+            if (!alat) return;
+            alat.Kondisi = kondisiBaru;
+            saveDataLocally();
+            pushToCloud();
+            showToast(`Status ${alat.Nama_Alat} diubah ke ${kondisiBaru}`, 'info');
+        }
+
+        function hapusAlatAdmin(idx) {
+            const nama = dataAlatLab[idx]?.Nama_Alat || 'Item';
+            dataAlatLab.splice(idx, 1);
+            saveDataLocally();
+            pushToCloud();
+            renderAdminStok();
+            showToast(`${nama} dihapus dari inventaris.`, 'info');
+        }
+
+        function prepareTambahAlatForm() {
+            const nextNum = dataAlatLab.length + 1;
+            document.getElementById('newId').value = 'ITM-' + String(nextNum).padStart(2, '0');
+        }
+
+        function previewNewImage() {
+            const url = document.getElementById('newGambar').value.trim();
+            const img = document.getElementById('previewImage');
+            const ph = document.getElementById('previewPlaceholder');
+            if (url) {
+                img.src = getDriveDirectUrl(url);
+                img.classList.remove('hidden');
+                ph.classList.add('hidden');
+            } else {
+                img.classList.add('hidden');
+                ph.classList.remove('hidden');
+            }
+        }
+
+        function tambahAlatBaru() {
+            const id = document.getElementById('newId').value.trim();
+            const kategori = document.getElementById('newKategori').value;
+            const nama = document.getElementById('newNama').value.trim();
+            const spek = document.getElementById('newSpek').value.trim();
+            const stok = parseInt(document.getElementById('newStok').value, 10) || 1;
+            const gambar = document.getElementById('newGambar').value.trim() || 'https://placehold.co/400x300?text=Alat+Lab';
+
+            if (!nama) {
+                showToast('Nama item wajib diisi!', 'error');
+                return;
+            }
+
+            dataAlatLab.push({
+                ID_Alat: id,
+                Nama_Alat: nama.toUpperCase(),
+                Kategori: kategori,
+                Stok_Tersedia: stok,
+                Kondisi: 'Baik',
+                Spesifikasi: spek || '-',
+                Gambar_URL: gambar
+            });
+
+            saveDataLocally();
+            pushToCloud();
+            document.getElementById('formTambahAlat').reset();
+            prepareTambahAlatForm();
+            showToast(`${nama} berhasil ditambahkan ke katalog!`, 'success');
+            switchAdminTab('tab-stok');
+        }
+
+        // Jalankan aplikasi saat halaman selesai dimuat
+        window.addEventListener('DOMContentLoaded', initApp);
+    </script>
+</body>
+</html>
